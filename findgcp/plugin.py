@@ -27,8 +27,11 @@ class Plugin(PluginBase):
 
     def include_js_files(self):
         # Loaded into the dashboard; registers the "Find-GCP task" button that
-        # runs the single-pass workflow (see public/load_buttons.js).
-        return ['load_buttons.js']
+        # runs the single-pass workflow (see public/load_buttons.js). The
+        # manifest version doubles as a cache-buster so browsers re-fetch the
+        # script after every plugin update.
+        version = self.get_manifest().get('version', '0')
+        return ['load_buttons.js?v={}'.format(version)]
 
     def app_mount_points(self):
         @login_required

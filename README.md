@@ -100,7 +100,7 @@ as a single root folder, and verifies the archive structure.
 zip and publish a GitHub Release with the archive attached:
 
 ```bash
-git tag v1.0.0 && git push origin v1.0.0
+git tag v0.2.0 && git push origin v0.2.0
 ```
 
 See [`.github/workflows/release.yml`](.github/workflows/release.yml). CI
@@ -126,6 +126,11 @@ If you prefer to run detection outside WebODM, the original Bash pipeline is in
 [`standalone/findgcp-webodm.sh`](standalone/findgcp-webodm.sh) — it wraps
 Find-GCP (`gcp_find.py`), builds a sanity report and can prep/upload a
 WebODM-ready folder. Run `standalone/findgcp-webodm.sh --help` for details.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md). The plugin is `0.x` and under active
+development; behaviour may change between minor releases.
 
 ## License
 

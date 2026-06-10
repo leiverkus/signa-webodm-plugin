@@ -5,19 +5,26 @@ from django.conf import settings
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, gettext_lazy as _l
 from django import forms
 
 from .api import TaskFindGCPDetect, TaskFindGCPCheck, FindGCPSettings, read_user_defaults
 
 
+# Field labels/help_texts are evaluated at class-definition (module import)
+# time, so they must be lazy — plain gettext would freeze them in whatever
+# language was active when the module loaded.
 class FindGCPSettingsForm(forms.Form):
-    epsg = forms.IntegerField(label=_("EPSG (target CRS)"), min_value=1024, max_value=999999)
-    dict_id = forms.ChoiceField(label=_("ArUco dictionary"),
+    epsg = forms.IntegerField(label=_l("EPSG (target CRS)"), min_value=1024, max_value=999999)
+    dict_id = forms.ChoiceField(label=_l("ArUco dictionary"),
                                 choices=[("1", "1 — DICT_4X4_100"), ("99", "99 — custom 3×3")])
-    minrate = forms.FloatField(label=_("minrate"), min_value=0.0001, max_value=1.0)
-    ignore = forms.FloatField(label=_("ignore"), min_value=0.0, max_value=0.99)
-    adjust = forms.BooleanField(label=_("Color adjustment (recommended for strong sunlight)"),
+    minrate = forms.FloatField(
+        label=_l("minrate"), min_value=0.0001, max_value=1.0,
+        help_text=_l("Minimum relative marker size. Lower it step by step (0.01 → 0.008 → 0.005) if markers are missed — never below 0.005. Markers should be at least 20×20 px in the image."))
+    ignore = forms.FloatField(
+        label=_l("ignore"), min_value=0.0, max_value=0.99,
+        help_text=_l("Ignored margin per marker cell, compensates overexposed (burnt-in) marker borders. 0.13 (OpenCV default) up to 0.33 in strong sunlight."))
+    adjust = forms.BooleanField(label=_l("Color adjustment (recommended for strong sunlight)"),
                                 required=False)
 
 

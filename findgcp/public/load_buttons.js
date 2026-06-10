@@ -81,6 +81,8 @@
             "id easting northing elevation (whitespace or comma separated).": "id Rechtswert Hochwert Höhe (durch Leerzeichen oder Komma getrennt).",
             "EPSG (target CRS)": "EPSG (Ziel-CRS)",
             "ArUco dictionary": "ArUco-Dictionary",
+            "Minimum relative marker size. Lower it step by step (0.01 → 0.008 → 0.005) if markers are missed — never below 0.005. Markers should be at least 20×20 px in the image.": "Minimale relative Markergröße. Bei nicht erkannten Markern schrittweise senken (0.01 → 0.008 → 0.005) — nie unter 0.005. Marker sollten im Bild mindestens 20×20 px groß sein.",
+            "Ignored margin per marker cell, compensates overexposed (burnt-in) marker borders. 0.13 (OpenCV default) up to 0.33 in strong sunlight.": "Ignorierter Rand pro Markerzelle, gleicht überbelichtete (ausgebrannte) Markerränder aus. 0.13 (OpenCV-Standard) bis 0.33 bei starkem Sonnenlicht.",
             "Color adjustment (strong sunlight)": "Farbkorrektur (starkes Sonnenlicht)",
             "Cancel": "Abbrechen",
             "Create &amp; detect GCPs": "Anlegen &amp; GCPs erkennen",
@@ -129,9 +131,11 @@
                   '</div>' +
                   '<div class="row">' +
                     '<div class="col-sm-6 form-group"><label>minrate</label>' +
-                      '<input type="number" step="0.001" min="0.005" class="form-control" data-minrate value="0.01"></div>' +
+                      '<input type="number" step="0.001" min="0.005" class="form-control" data-minrate value="0.01">' +
+                      '<p class="help-block">' + tr("Minimum relative marker size. Lower it step by step (0.01 → 0.008 → 0.005) if markers are missed — never below 0.005. Markers should be at least 20×20 px in the image.") + '</p></div>' +
                     '<div class="col-sm-6 form-group"><label>ignore</label>' +
-                      '<input type="number" step="0.01" min="0" max="0.99" class="form-control" data-ignore value="0.33"></div>' +
+                      '<input type="number" step="0.01" min="0" max="0.99" class="form-control" data-ignore value="0.33">' +
+                      '<p class="help-block">' + tr("Ignored margin per marker cell, compensates overexposed (burnt-in) marker borders. 0.13 (OpenCV default) up to 0.33 in strong sunlight.") + '</p></div>' +
                   '</div>' +
                   '<div class="checkbox"><label><input type="checkbox" data-adjust checked> ' + tr("Color adjustment (strong sunlight)") + '</label></div>' +
                   '<div data-status style="display:none;margin-top:10px;padding:8px 12px;border-radius:4px;background:#f3f3f3;"></div>' +

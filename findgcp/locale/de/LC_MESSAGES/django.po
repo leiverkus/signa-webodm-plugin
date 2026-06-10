@@ -55,6 +55,14 @@ msgstr "ArUco-Dictionary"
 msgid "minrate"
 msgstr "minrate"
 
+#: templates/app.html, plugin.py (help text)
+msgid "Minimum relative marker size. Lower it step by step (0.01 → 0.008 → 0.005) if markers are missed — never below 0.005. Markers should be at least 20×20 px in the image."
+msgstr "Minimale relative Markergröße. Bei nicht erkannten Markern schrittweise senken (0.01 → 0.008 → 0.005) — nie unter 0.005. Marker sollten im Bild mindestens 20×20 px groß sein."
+
+#: templates/app.html, plugin.py (help text)
+msgid "Ignored margin per marker cell, compensates overexposed (burnt-in) marker borders. 0.13 (OpenCV default) up to 0.33 in strong sunlight."
+msgstr "Ignorierter Rand pro Markerzelle, gleicht überbelichtete (ausgebrannte) Markerränder aus. 0.13 (OpenCV-Standard) bis 0.33 bei starkem Sonnenlicht."
+
 #: templates/app.html, plugin.py — parameter name, kept as-is
 msgid "ignore"
 msgstr "ignore"

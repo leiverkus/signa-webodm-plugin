@@ -9,6 +9,20 @@ and behaviour may change between minor releases.
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-06-10
+
+### Added
+- Help texts for **minrate** and **ignore** wherever they can be changed (the
+  Find-GCP page, the settings form, and the dashboard dialog), in both
+  languages: what the parameter means and which values are sensible (minrate:
+  lower stepwise 0.01 → 0.008 → 0.005, never below 0.005, markers ≥ 20×20 px;
+  ignore: 0.13 OpenCV default up to 0.33 in strong sunlight).
+
+### Fixed
+- Settings-form labels and help texts now use `gettext_lazy` — they are
+  evaluated at module import time, where plain `gettext` would freeze them in
+  whatever language was active when the module loaded.
+
 ## [0.6.0] - 2026-06-10
 
 ### Added

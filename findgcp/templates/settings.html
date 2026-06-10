@@ -26,6 +26,7 @@
           <label>{{ field.label }}</label>
           {{ field }}
         {% endif %}
+        {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
         {% if field.errors %}<div class="field-error">{{ field.errors|striptags }}</div>{% endif %}
       </div>
     {% endfor %}

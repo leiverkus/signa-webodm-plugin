@@ -42,10 +42,12 @@
       <div class="frow">
         <label>{% trans "minrate" %}</label>
         <input type="number" id="minrate" value="{{ defaults.minrate|unlocalize }}" step="0.001" min="0.005">
+        <small>{% trans "Minimum relative marker size. Lower it step by step (0.01 → 0.008 → 0.005) if markers are missed — never below 0.005. Markers should be at least 20×20 px in the image." %}</small>
       </div>
       <div class="frow">
         <label>{% trans "ignore" %}</label>
         <input type="number" id="ignore" value="{{ defaults.ignore|unlocalize }}" step="0.01" min="0" max="0.99">
+        <small>{% trans "Ignored margin per marker cell, compensates overexposed (burnt-in) marker borders. 0.13 (OpenCV default) up to 0.33 in strong sunlight." %}</small>
       </div>
     </div>
 

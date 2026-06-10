@@ -18,9 +18,30 @@ optionally upload via the API) is kept under [`standalone/`](standalone/).
 2. In WebODM: **Administration → Plugins → Load Plugin (.zip)** and upload the zip.
 3. Enable the plugin. A **Find-GCP** entry appears in the main menu.
 
-The plugin declares `opencv-contrib-python-headless` and `numpy` in
-`requirements.txt`; WebODM installs these when the plugin is built. They must be
-available to the **worker** container that runs the detection.
+### Worker image requirement (important)
+
+Detection runs in the **Celery worker** via WebODM's `run_function_async`
+(`eval_async`), which compiles the function source in a bare namespace and does
+**not** add the plugin's per-plugin site-packages to `sys.path`. As a result,
+the `requirements.txt` install does *not* make `cv2` importable in the worker.
+
+**`opencv-contrib-python` (or the headless build) and `numpy` must be present in
+the worker image.** Build a thin custom worker image, e.g.:
+
+```dockerfile
+FROM opendronemap/nodeodm   # or your WebODM worker base
+RUN pip install --no-cache-dir "opencv-contrib-python-headless~=4.10" "numpy>=1.23,<3"
+```
+
+…and pin it in `docker-compose` (no `latest`). `numpy` already ships with
+WebODM; OpenCV usually does not. Without it, runs fail with
+`ModuleNotFoundError: No module named 'cv2'`.
+
+### Permissions
+
+The detect endpoint requires an authenticated user with `change_project`
+permission on the task's project — enforced even for public tasks (unlike
+WebODM's default `AllowAny` task views), because detection is expensive.
 
 ## Usage
 
@@ -54,8 +75,8 @@ findgcp/                  # ← single root dir required by WebODM's plugin load
 ├── __init__.py
 ├── manifest.json         # name, version, webodmMinVersion, …
 ├── plugin.py             # Plugin(PluginBase): menu, app + API mount points
-├── api.py                # detect / check / download endpoints (DRF TaskView)
-├── gcp_detect.py         # ported ArUco detection (runs in the worker)
+├── api.py                # detect + check endpoints (DRF TaskView), auth-gated
+├── gcp_detect.py         # ported ArUco detection — self-contained for the worker
 ├── requirements.txt      # opencv-contrib-python-headless, numpy
 ├── templates/app.html    # UI (vanilla JS + fetch, no JSX build)
 └── public/               # style.css, icon.svg
@@ -84,7 +105,20 @@ git tag v1.0.0 && git push origin v1.0.0
 
 See [`.github/workflows/release.yml`](.github/workflows/release.yml). CI
 ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs shellcheck, a
-Python compile-check and a test build on every push/PR.
+Python compile-check, the unit tests and a test build on every push/PR.
+
+## Tests
+
+```bash
+pip install "numpy>=1.23,<3" pytest
+python -m pytest tests/ -q
+```
+
+OpenCV is mocked, so the suite needs no `cv2`. The key test
+(`test_self_contained_under_worker_eval`) reproduces WebODM's worker execution
+model — it takes `detect_gcps` *by source*, compiles it in an empty namespace
+and calls it — so a regression to module-level helpers (which would raise
+`NameError` only in the live worker) fails in CI instead.
 
 ## Standalone CLI (alternative)
 

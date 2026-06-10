@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _
 
-from .api import TaskFindGCPDetect, TaskFindGCPCheck, TaskFindGCPDownload
+from .api import TaskFindGCPDetect, TaskFindGCPCheck
 
 
 class Plugin(PluginBase):
@@ -25,5 +25,4 @@ class Plugin(PluginBase):
         return [
             MountPoint('task/(?P<pk>[^/.]+)/detect', TaskFindGCPDetect.as_view()),
             MountPoint('task/[^/.]+/check/(?P<celery_task_id>.+)', TaskFindGCPCheck.as_view()),
-            MountPoint('task/[^/.]+/download/(?P<celery_task_id>.+)', TaskFindGCPDownload.as_view()),
         ]

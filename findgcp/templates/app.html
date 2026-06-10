@@ -129,8 +129,17 @@
     s.innerHTML = html;
   }
 
-  function renderSummary(summary, taskId, celeryId){
-    var dl = apiBase + "/task/" + taskId + "/download/" + celeryId + "?filename=gcp_list.txt";
+  function downloadGcpList(text){
+    var blob = new Blob([text], {type: "text/plain"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "gcp_list.txt";
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function renderSummary(summary){
     var rows = "";
     var per = summary.markers_per_id || {};
     Object.keys(per).forEach(function(id){
@@ -155,7 +164,10 @@
       warnUnique + unmatched +
       '<table class="markers"><thead><tr><th>{% trans "Marker ID" %}</th><th>{% trans "Images" %}</th></tr></thead><tbody>' +
         rows + '</tbody></table>' +
-      '<p><a class="btn btn-primary" href="' + dl + '"><i class="fa fa-download"></i> {% trans "Download gcp_list.txt" %}</a></p>';
+      '<p><button id="dl-gcp" class="btn btn-primary"><i class="fa fa-download"></i> {% trans "Download gcp_list.txt" %}</button></p>';
+
+    var btn = document.getElementById("dl-gcp");
+    if (btn) btn.addEventListener("click", function(){ downloadGcpList(summary.gcp_list || ""); });
   }
 
   function poll(taskId, celeryId){
@@ -174,7 +186,7 @@
         }
         $("status").style.display = "none";
         $("run").disabled = false;
-        renderSummary(data.summary || {}, taskId, celeryId);
+        renderSummary(data.summary || {});
       })
       .catch(function(){
         setStatus("{% trans 'Lost connection while polling.' %}", "error");

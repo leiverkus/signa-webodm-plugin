@@ -17,7 +17,7 @@ jobs:
           bash -n standalone/findgcp-webodm.sh
 
       - name: shellcheck
-        uses: ludeeus/action-shellcheck@master
+        uses: ludeeus/action-shellcheck@2.0.0
         with:
           scandir: '.'
 
@@ -34,6 +34,12 @@ jobs:
 
       - name: Validate manifest.json
         run: python3 -c "import json; m=json.load(open('findgcp/manifest.json')); assert m['name'] and m['version']; print('manifest ok:', m['name'], m['version'])"
+
+      - name: Install test deps
+        run: pip install "numpy>=1.23,<3" pytest
+
+      - name: Run unit tests
+        run: python -m pytest tests/ -q
 
   build:
     runs-on: ubuntu-latest

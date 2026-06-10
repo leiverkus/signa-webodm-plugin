@@ -123,6 +123,7 @@ tmp/
 temp/
 .cache/
 
-# === Local Claude Code project context (never commit) ===
+# === Local agent/project context (never commit) ===
 CLAUDE.md
 CLAUDE-home.md
+AGENTS.md

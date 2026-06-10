@@ -14,10 +14,10 @@
  * API is not csrf_exempt — see docs/single-pass-design.md).
  */
 (function () {
-    // Only PluginsAPI must exist when this script runs (it is loaded after the
-    // WebODM bundle). React is used inside the button callback, which runs later
-    // at trigger time, so we read window.React there — not at load time.
-    if (!window.PluginsAPI) return;
+    // PluginsAPI / React may not be on `window` yet when this synchronous
+    // <head> script runs (the main bundle can define them slightly later), so
+    // we wait for PluginsAPI before registering instead of giving up. React is
+    // read inside the button callback, which runs later at trigger time.
 
     function csrfToken() {
         var m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
@@ -210,7 +210,7 @@
         });
     }
 
-    PluginsAPI.Dashboard.addNewTaskButton(function (args) {
+    function makeButton(args) {
         var React = window.React;
         return React.createElement("button", {
             key: "findgcp-newtask",
@@ -218,5 +218,27 @@
             style: { marginLeft: 4 },
             onClick: function () { openDialog(args.projectId, args.onNewTaskAdded); }
         }, React.createElement("i", { className: "fa fa-map-marker-alt" }), " Find-GCP Task");
-    });
+    }
+
+    function ready() {
+        return !!(window.PluginsAPI && window.PluginsAPI.Dashboard &&
+                  window.PluginsAPI.Dashboard.addNewTaskButton);
+    }
+
+    function register() {
+        try { window.PluginsAPI.Dashboard.addNewTaskButton(makeButton); } catch (e) { /* ignore */ }
+    }
+
+    // PluginsAPI is normally available synchronously (the main bundle is a
+    // synchronous <script> before the plugin scripts). The poll is a defensive
+    // fallback in case a setup loads it slightly later.
+    if (ready()) {
+        register();
+    } else {
+        var tries = 0;
+        var iv = setInterval(function () {
+            if (ready()) { clearInterval(iv); register(); }
+            else if (++tries > 100) { clearInterval(iv); }
+        }, 100);
+    }
 })();

@@ -17,9 +17,15 @@ optionally upload via the API) is kept under [`standalone/`](standalone/).
    [Releases](https://github.com/leiverkus/Find-GCP-WebODM-Workflow/releases) page.
 2. In WebODM: **Administration → Plugins → Load Plugin (.zip)** and upload the zip.
 3. Enable the plugin. A **Find-GCP** entry appears in the main menu.
-4. **Restart the web app** after uploading (e.g. `docker restart webapp`). The
-   plugin cache is per-gunicorn-worker, so without a restart the page can return
-   404 intermittently until every worker has picked up the new plugin.
+4. **Restart the web app** after every install or update
+   (`docker restart webapp`). **This is required, not optional.** Uploading a
+   plugin swaps the files on disk, but the running gunicorn workers keep the old
+   plugin module in `sys.modules` (Python does not re-import it) — and each
+   worker is independent. Without a restart you get intermittent symptoms across
+   reloads: the **Find-GCP page 404s** on some workers, and the **"Find-GCP
+   task" dashboard button appears and disappears** (workers that still run the
+   old module don't inject its JavaScript). A restart re-imports the plugin in
+   every worker. After restarting, hard-refresh the browser once.
 
 ### Worker image requirement (important)
 

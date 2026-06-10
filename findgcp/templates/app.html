@@ -3,7 +3,7 @@
 
 {% block content %}
 {% csrf_token %}
-<link rel="stylesheet" type="text/css" href="style.css?v=5">
+<link rel="stylesheet" type="text/css" href="style.css?v=6">
 
 <div class="findgcp">
   <h2><i class="fa fa-map-marker-alt"></i> {% trans "Find-GCP — ArUco GCP detection" %}</h2>
@@ -23,39 +23,39 @@
       <input type="file" id="images" multiple accept=".jpg,.jpeg,.png,.tif,.tiff,image/*" style="display:none">
     </div>
 
-    <div class="row">
+    <div class="frow">
       <label>{% trans "GCP coordinate file" %}</label>
       <input type="file" id="coords" accept=".txt,.csv,text/plain">
       <small>{% trans "Format per line: id easting northing elevation (whitespace or comma separated)." %}</small>
     </div>
 
     <div class="grid">
-      <div class="row">
+      <div class="frow">
         <label>{% trans "EPSG (target CRS)" %}</label>
         <input type="number" id="epsg" value="{{ defaults.epsg|unlocalize }}">
       </div>
-      <div class="row">
+      <div class="frow">
         <label>{% trans "ArUco dictionary" %}</label>
         <select id="dict">
           <option value="1" {% if defaults.dict == 1 %}selected{% endif %}>1 — DICT_4X4_100</option>
           <option value="99" {% if defaults.dict == 99 %}selected{% endif %}>99 — custom 3×3</option>
         </select>
       </div>
-      <div class="row">
+      <div class="frow">
         <label>{% trans "minrate" %}</label>
         <input type="number" id="minrate" value="{{ defaults.minrate|unlocalize }}" step="0.001" min="0.005">
       </div>
-      <div class="row">
+      <div class="frow">
         <label>{% trans "ignore" %}</label>
         <input type="number" id="ignore" value="{{ defaults.ignore|unlocalize }}" step="0.01" min="0" max="0.99">
       </div>
     </div>
 
-    <div class="row checkbox">
+    <div class="frow checkbox">
       <label><input type="checkbox" id="adjust" {% if defaults.adjust %}checked{% endif %}> {% trans "Color adjustment (recommended for strong sunlight)" %}</label>
     </div>
 
-    <div class="row">
+    <div class="frow">
       <button id="run" class="btn btn-primary"><i class="fa fa-cogs"></i> {% trans "Detect GCPs" %}</button>
     </div>
   </form>

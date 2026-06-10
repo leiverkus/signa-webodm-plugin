@@ -9,6 +9,18 @@ and behaviour may change between minor releases.
 
 ## [Unreleased]
 
+## [0.6.2] - 2026-06-10
+
+### Fixed
+- **Unstable language selection** (pages flipping between German and English
+  across navigations): the locale hook lived in `register()`, but WebODM's
+  `boot()` is guarded by a shared-memory flag (`webodm.wsgi.booted`), so
+  `register()` runs in only **one** gunicorn worker — German appeared only when
+  that worker answered. The hook now runs in `Plugin.__init__`, which executes
+  in **every** worker (plugins are instantiated on each page render via the
+  plugin template tags), and re-activates the current language after merging
+  the catalog.
+
 ## [0.6.1] - 2026-06-10
 
 ### Added

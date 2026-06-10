@@ -29,21 +29,31 @@ class FindGCPSettingsForm(forms.Form):
 
 
 class Plugin(PluginBase):
-    def register(self):
-        super().register()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         # WebODM has no official plugin-translation support: LOCALE_PATHS only
         # contains WebODM's own locale dir, and plugins are not Django apps. We
-        # ship our own catalogs (locale/de/LC_MESSAGES/django.mo) and append our
-        # locale dir at registration time — register() runs at worker boot
-        # (app/boot.py -> init_plugins), i.e. in every gunicorn worker. Resetting
-        # Django's per-language catalog cache makes already-built languages pick
-        # up the merged catalog regardless of activation order.
+        # ship our own catalogs (locale/de/LC_MESSAGES/django.mo) and hook our
+        # locale dir into LOCALE_PATHS here, in __init__ — NOT in register():
+        # boot() is guarded by a shared-memory flag (webodm.wsgi.booted), so
+        # register() runs in only ONE gunicorn worker, which made the language
+        # flap per request (German only when the boot worker answered). The
+        # plugin is instantiated in EVERY worker (get_plugins() runs on each
+        # page render via the plugin template tags), so this hook is
+        # per-worker-reliable. Idempotent via the membership check.
         locale_dir = self.get_path("locale")
         if os.path.isdir(locale_dir) and locale_dir not in settings.LOCALE_PATHS:
             settings.LOCALE_PATHS = list(settings.LOCALE_PATHS) + [locale_dir]
+            # Drop per-language catalog caches so already-built languages are
+            # rebuilt with our catalog merged in; re-activate the current
+            # language so even the in-flight request switches over.
+            from django.utils import translation
             from django.utils.translation import trans_real
+            lang = translation.get_language()
             trans_real._translations = {}
             trans_real._default = None
+            if lang:
+                translation.activate(lang)
 
     def main_menu(self):
         return [

@@ -14,8 +14,10 @@
  * API is not csrf_exempt — see docs/single-pass-design.md).
  */
 (function () {
-    if (!window.PluginsAPI || !window.React) return;
-    var React = window.React;
+    // Only PluginsAPI must exist when this script runs (it is loaded after the
+    // WebODM bundle). React is used inside the button callback, which runs later
+    // at trigger time, so we read window.React there — not at load time.
+    if (!window.PluginsAPI) return;
 
     function csrfToken() {
         var m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
@@ -209,6 +211,7 @@
     }
 
     PluginsAPI.Dashboard.addNewTaskButton(function (args) {
+        var React = window.React;
         return React.createElement("button", {
             key: "findgcp-newtask",
             className: "btn btn-default",

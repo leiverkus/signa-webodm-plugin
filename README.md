@@ -67,14 +67,24 @@ user cannot read another's result by knowing its celery id.
 
 ## Usage
 
-Open **Find-GCP** from the menu, then:
+The plugin offers two entry points:
 
-1. Pick a **project** and a **task** (the task must already have its images).
-2. Upload the **GCP coordinate file** — one marker per line:
-   `id easting northing elevation` (whitespace or comma separated).
+**Find-GCP menu page — standalone detection tool** (like the core `posm-gcpi`
+GCP interface, but automatic):
+
+1. Open **Find-GCP** from the menu.
+2. **Drop drone images** (or click to choose) and select the **GCP coordinate
+   file** — one marker per line: `id easting northing elevation` (whitespace or
+   comma separated).
 3. Set the parameters (see below) and click **Detect GCPs**.
 4. Review the summary (markers, image counts, warnings) and **download
-   `gcp_list.txt`**. Add it to the task's GCP field before processing.
+   `gcp_list.txt`**.
+
+It runs the detection on a throwaway scratch task that is deleted again
+afterwards — nothing is processed. Use this to produce or QA a `gcp_list.txt`.
+
+**Dashboard "Find-GCP Task" button — single pass** (detect **and** georeference
+in one run): see [Single-pass](#single-pass-detect-before-processing) below.
 
 ### Parameters
 
@@ -125,7 +135,7 @@ findgcp/                  # ← single root dir required by WebODM's plugin load
 ├── api.py                # detect + check endpoints (DRF TaskView), auth-gated
 ├── params.py             # Django-free parameter validation (unit-tested)
 ├── gcp_detect.py         # ported ArUco detection — self-contained for the worker
-├── templates/app.html    # the Find-GCP menu page (vanilla JS + fetch)
+├── templates/app.html    # standalone detection tool (drop images → download gcp_list)
 └── public/
     ├── load_buttons.js   # "Find-GCP task" dashboard button (single-pass)
     ├── style.css

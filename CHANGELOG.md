@@ -9,6 +9,17 @@ and behaviour may change between minor releases.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-10
+
+### Changed
+- **The Find-GCP menu page is now a standalone detection tool** (like the core
+  `posm-gcpi` GCP interface, but automatic): drop drone images + a coordinate
+  file, run ArUco detection, and **download `gcp_list.txt`** — no existing task
+  required. It creates a scratch task on the server for the detection and
+  deletes it again afterwards (nothing is processed). The previous page (pick an
+  existing task → detect) is superseded by this and by the dashboard button.
+  Reuses the existing detect/check endpoints; no new server code.
+
 ## [0.3.0] - 2026-06-10
 
 Single-pass workflow: detect GCPs **before** the (only) processing run, so a

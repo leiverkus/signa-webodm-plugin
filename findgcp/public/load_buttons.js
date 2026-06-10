@@ -19,6 +19,27 @@
     // we wait for PluginsAPI before registering instead of giving up. React is
     // read inside the button callback, which runs later at trigger time.
 
+    // ArUco dictionaries offered in the dialog — a mirror of findgcp/params.py
+    // DICT_CHOICES (ids 0..20 = OpenCV predefined, 99 = Find-GCP custom 3x3).
+    // This page is a static script (no Django rendering), so the list is
+    // duplicated here; keep it in sync with params.py if that ever changes.
+    var DICT_CHOICES = [
+        ["0", "0 — DICT_4X4_50"], ["1", "1 — DICT_4X4_100"], ["2", "2 — DICT_4X4_250"],
+        ["3", "3 — DICT_4X4_1000"], ["4", "4 — DICT_5X5_50"], ["5", "5 — DICT_5X5_100"],
+        ["6", "6 — DICT_5X5_250"], ["7", "7 — DICT_5X5_1000"], ["8", "8 — DICT_6X6_50"],
+        ["9", "9 — DICT_6X6_100"], ["10", "10 — DICT_6X6_250"], ["11", "11 — DICT_6X6_1000"],
+        ["12", "12 — DICT_7X7_50"], ["13", "13 — DICT_7X7_100"], ["14", "14 — DICT_7X7_250"],
+        ["15", "15 — DICT_7X7_1000"], ["16", "16 — DICT_ARUCO_ORIGINAL"],
+        ["17", "17 — DICT_APRILTAG_16h5"], ["18", "18 — DICT_APRILTAG_25h9"],
+        ["19", "19 — DICT_APRILTAG_36h10"], ["20", "20 — DICT_APRILTAG_36h11"],
+        ["99", "99 — custom 3×3 (Find-GCP)"]
+    ];
+    function dictOptions(selected) {
+        return DICT_CHOICES.map(function (d) {
+            return '<option value="' + d[0] + '"' + (d[0] === selected ? ' selected' : '') + '>' + d[1] + '</option>';
+        }).join('');
+    }
+
     function csrfToken() {
         var m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
         return m ? decodeURIComponent(m[1]) : "";
@@ -138,7 +159,7 @@
                     '<div class="col-sm-6 form-group"><label>' + tr("EPSG (target CRS)") + '</label>' +
                       '<input type="number" class="form-control" data-epsg value="28191"></div>' +
                     '<div class="col-sm-6 form-group"><label>' + tr("ArUco dictionary") + '</label>' +
-                      '<select class="form-control" data-dict><option value="1" selected>1 — DICT_4X4_100</option><option value="99">99 — custom 3×3</option></select></div>' +
+                      '<select class="form-control" data-dict>' + dictOptions("1") + '</select></div>' +
                   '</div>' +
                   '<div class="row">' +
                     '<div class="col-sm-6 form-group"><label>minrate</label>' +

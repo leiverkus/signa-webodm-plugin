@@ -18,7 +18,22 @@ def _load():
     return mod
 
 
-validate_params = _load().validate_params
+_params = _load()
+validate_params = _params.validate_params
+
+
+def test_all_opencv_dicts_and_custom_accepted():
+    # every id offered in the UI (0..20 predefined + 99 custom) must validate
+    for value, _label in _params.DICT_CHOICES:
+        p, err = validate_params({"epsg": "28191", "dict": value})
+        assert err is None, (value, err)
+        assert p["dict_id"] == int(value)
+
+
+def test_dict_choices_match_valid_dicts():
+    # the UI list and the accepted-id set are derived from the same source
+    assert {int(v) for v, _ in _params.DICT_CHOICES} == _params.VALID_DICTS
+    assert _params.VALID_DICTS == set(range(0, 21)) | {99}
 
 
 def test_valid_defaults():

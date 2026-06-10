@@ -35,8 +35,9 @@
       <div class="frow">
         <label>{% trans "ArUco dictionary" %}</label>
         <select id="dict">
-          <option value="1" {% if defaults.dict == 1 %}selected{% endif %}>1 — DICT_4X4_100</option>
-          <option value="99" {% if defaults.dict == 99 %}selected{% endif %}>99 — custom 3×3</option>
+          {% for value, label in dict_choices %}
+          <option value="{{ value }}" {% if value == defaults.dict|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
         </select>
       </div>
       <div class="frow">

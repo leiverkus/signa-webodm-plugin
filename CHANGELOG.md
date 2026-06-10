@@ -7,11 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-11
+
+### Added
+- **All ArUco dictionaries are now selectable in the UI.** The settings form and
+  both task dialogs (Find-GCP page + dashboard button) previously offered only
+  `1 — DICT_4X4_100` and `99 — custom 3×3`, while the backend already accepted
+  every OpenCV predefined dictionary. They now list all 21 predefined dictionaries
+  (ids 0–20: the 4×4/5×5/6×6/7×7 families, `DICT_ARUCO_ORIGINAL`, and the four
+  AprilTag families) plus the custom 3×3 (99). The list lives once in
+  `findgcp/params.py` (`DICT_CHOICES`), from which the form, the server-rendered
+  dropdown and the API's accepted-id set are all derived, so they can't drift.
+
 ### Fixed
 - CI: resolved two `shellcheck` findings in `standalone/findgcp-webodm.sh`
   (SC2206 intentional-glob directive, SC2015 `&&`/`||` rewritten as if-then-else).
-  Lint-only; the helper script is not part of the plugin zip, so the published
-  `1.1.2` artifact is unchanged.
+  Lint-only; the helper script is not part of the plugin zip.
 
 ### Changed
 - CI: bumped GitHub Actions off the deprecated Node.js 20 runtime —
@@ -320,7 +331,8 @@ Initial WebODM plugin.
   Actions workflow to publish a release on a `v*` tag.
 - Standalone Bash CLI retained under `standalone/`.
 
-[Unreleased]: https://github.com/leiverkus/find-gcp-webodm-plugin/compare/v1.1.2...HEAD
+[Unreleased]: https://github.com/leiverkus/find-gcp-webodm-plugin/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/leiverkus/find-gcp-webodm-plugin/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/leiverkus/find-gcp-webodm-plugin/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/leiverkus/find-gcp-webodm-plugin/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/leiverkus/find-gcp-webodm-plugin/compare/v1.0.0...v1.1.0

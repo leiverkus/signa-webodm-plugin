@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _, gettext_lazy as _l
 from django import forms
 
 from .api import TaskFindGCPDetect, TaskFindGCPCheck, FindGCPSettings, read_user_defaults
+from .params import DICT_CHOICES
 
 
 # Field labels/help_texts are evaluated at class-definition (module import)
@@ -16,8 +17,7 @@ from .api import TaskFindGCPDetect, TaskFindGCPCheck, FindGCPSettings, read_user
 # language was active when the module loaded.
 class FindGCPSettingsForm(forms.Form):
     epsg = forms.IntegerField(label=_l("EPSG (target CRS)"), min_value=1024, max_value=999999)
-    dict_id = forms.ChoiceField(label=_l("ArUco dictionary"),
-                                choices=[("1", "1 — DICT_4X4_100"), ("99", "99 — custom 3×3")])
+    dict_id = forms.ChoiceField(label=_l("ArUco dictionary"), choices=DICT_CHOICES)
     minrate = forms.FloatField(
         label=_l("minrate"), min_value=0.005, max_value=1.0,
         help_text=_l("Minimum relative marker size. Lower it step by step (0.01 → 0.008 → 0.005) if markers are missed — never below 0.005. Markers should be at least 20×20 px in the image."))
@@ -75,6 +75,7 @@ class Plugin(PluginBase):
             return render(request, self.template_path("app.html"), {
                 'title': 'Find-GCP',
                 'defaults': read_user_defaults(self.get_user_data_store(request.user)),
+                'dict_choices': DICT_CHOICES,
             })
 
         @login_required

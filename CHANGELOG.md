@@ -37,6 +37,9 @@ production-blocking issues; not yet verified against a live WebODM instance.
   record is released once a terminal result has been served.
 
 ### Added
+- `docker/` — a `worker.Dockerfile` extending `webodm/webodm_webapp` with
+  OpenCV and a `docker-compose.findgcp.yml` override (with `docker/README.md`),
+  so the worker has `cv2` reproducibly.
 - Unit test suite (11 tests, OpenCV mocked). The key test reproduces WebODM's
   worker execution model (compile `detect_gcps` from source in an empty
   namespace) so the self-containment regression is caught in CI.

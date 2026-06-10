@@ -1,0 +1,29 @@
+# Compose override that points WebODM's webapp and worker at the custom image
+# built from worker.Dockerfile (which adds OpenCV for the Find-GCP plugin).
+#
+# Both services must use the same image, since the worker runs the same code as
+# the webapp. Merge this file AFTER WebODM's own compose files so it overrides
+# the `image:` of those two services.
+#
+# 1) Build the image (pin the tag to YOUR WebODM version):
+#      docker build -t webodm-findgcp:0.2.0 \
+#        --build-arg WEBODM_VERSION=<your-webodm-image-tag> \
+#        -f docker/worker.Dockerfile docker/
+#
+# 2) Start WebODM with this override merged in. Add it as an extra `-f` to the
+#    same compose invocation WebODM uses, e.g.:
+#      docker compose -f docker-compose.yml \
+#        -f docker-compose.nodeodm.yml \
+#        -f /path/to/docker-compose.findgcp.yml up -d
+#
+#    webodm.sh has no flag to inject custom overrides: it assembles a fixed
+#    `docker-compose -f ...` command (see its `command=` near line 431). Either
+#    run compose manually as above, or add `-f docker-compose.findgcp.yml` to
+#    that command (copy this file into the WebODM directory first).
+
+version: '2.1'
+services:
+  webapp:
+    image: webodm-findgcp:0.2.0
+  worker:
+    image: webodm-findgcp:0.2.0

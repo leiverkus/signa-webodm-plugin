@@ -25,17 +25,25 @@ Detection runs in the **Celery worker** via WebODM's `run_function_async`
 **not** add the plugin's per-plugin site-packages to `sys.path`. As a result,
 the `requirements.txt` install does *not* make `cv2` importable in the worker.
 
-**`opencv-contrib-python` (or the headless build) and `numpy` must be present in
-the worker image.** Build a thin custom worker image, e.g.:
+**OpenCV must be present in the worker image.** In WebODM's compose the `worker`
+and `webapp` services share one image (`webodm/webodm_webapp`), so the fix is a
+thin image that extends it with `opencv-contrib-python-headless` and is used for
+both services. `numpy` already ships with WebODM; OpenCV does not. Without it,
+runs fail with `ModuleNotFoundError: No module named 'cv2'`.
 
-```dockerfile
-FROM opendronemap/nodeodm   # or your WebODM worker base
-RUN pip install --no-cache-dir "opencv-contrib-python-headless~=4.10" "numpy>=1.23,<3"
+Ready-made files are in [`docker/`](docker/) — a `worker.Dockerfile` and a
+compose override, with step-by-step instructions in
+[`docker/README.md`](docker/README.md). In short:
+
+```bash
+docker build -t webodm-findgcp:0.2.0 \
+  --build-arg WEBODM_VERSION=<your-webodm-image-tag> \
+  -f docker/worker.Dockerfile docker/
+# then add docker/docker-compose.findgcp.yml as a final -f to your compose command
 ```
 
-…and pin it in `docker-compose` (no `latest`). `numpy` already ships with
-WebODM; OpenCV usually does not. Without it, runs fail with
-`ModuleNotFoundError: No module named 'cv2'`.
+Pin `WEBODM_VERSION` to your WebODM image tag (no `latest`) so the worker runs
+the same code as the rest of the stack.
 
 ### Permissions
 

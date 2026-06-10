@@ -1,0 +1,191 @@
+# .claudeignore
+# ----------------------------------------------------------------------
+# Verhindert, dass Claude Code grosse Binaries, Roh-Daten und
+# generierte Outputs in den Kontext laedt. Spart Tokens, beschleunigt
+# Sessions, schuetzt sensible Felddaten.
+#
+# Syntax: gitignore-kompatibel.
+# ----------------------------------------------------------------------
+
+# === Drohnen-Rohbilder & Felddaten ===
+# Niemals in den Kontext laden - 20-60 MB pro Datei, 100s-1000s pro Site
+fieldwork/*/raw/
+fieldwork/**/raw/
+**/raw/
+*.JPG
+*.jpg
+*.JPEG
+*.jpeg
+*.DNG
+*.dng
+*.RAW
+*.raw
+*.NEF
+*.CR2
+*.ARW
+*.tif
+*.TIF
+*.tiff
+*.TIFF
+
+# === Photogrammetrie-Outputs ===
+# Orthomosaike, DEMs, Punktwolken, Mesh - alle gross und reproduzierbar
+*.las
+*.laz
+*.ply
+*.obj
+*.fbx
+*.3ds
+*.glb
+*.gltf
+*.cog.tif
+**/odm_orthophoto/
+**/odm_dem/
+**/odm_meshing/
+**/odm_texturing*/
+**/opensfm/
+**/odm_filterpoints/
+**/odm_georeferencing/
+**/cameras.json
+**/reconstruction.json
+
+# === WebODM/ODX-bereit-Ordner (Symlinks reichen, aber Inhalte nicht ===
+fieldwork/*/processed/webodm_ready/images/
+**/webodm_ready/images/
+
+# === GIS/Geodatenformate ===
+*.gpkg
+*.gpkg-journal
+*.gpkg-wal
+*.gpkg-shm
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+*.qix
+*.sbn
+*.sbx
+*.mbtiles
+*.pmtiles
+*.geotiff
+*.aux.xml
+*.ovr
+
+# Ausnahme: Beispiel-/Test-Geometrien dürfen rein, wenn sie klein sind
+!samples/*.gpkg
+!tests/fixtures/*.geojson
+
+# === Logs & Reports ===
+# Logs sind selten relevant für Claude Code; bei Bedarf gezielt anhaengen
+*.log
+findgcp_*.log
+fieldwork/*/processed/*.log
+gcp_report.txt
+
+# === Python-Artefakte ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# === Node/JS (falls Web-Komponenten dazukommen) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === IDE & Editor ===
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Docker/Container-Volumes ===
+.docker/
+docker-data/
+postgres-data/
+qgis-server-data/
+
+# === Secrets & Credentials ===
+# Niemals in den Kontext - selbst wenn versehentlich committed
+*.env
+.env*
+!.env.example
+*.key
+*.pem
+*.p12
+secrets/
+credentials/
+*_credentials*
+*_token*
+.netrc
+
+# === DistoField-spezifisch ===
+# Flutter-Build-Artefakte, falls DistoField-Repo eingebunden ist
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/build/
+**/ios/Pods/
+**/android/.gradle/
+
+# === QGIS-Projektdateien (gross, oft binaer-aehnlich) ===
+*.qgz
+*.qgs~
+# Ausnahme: schlanke Projektdefinitionen erlauben
+!project.qgs
+
+# === Bibliographie-Roh-PDFs ===
+# RIS/BibTeX dürfen rein, PDFs nicht (Copyright, Groesse)
+literature/**/*.pdf
+references/**/*.pdf
+zotero_storage/
+
+# === Backups & Archive ===
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+*.backup
+*.old
+*~
+
+# === Temporaere Dateien ===
+tmp/
+temp/
+.cache/
+*.tmp
+
+# === Was IMMER im Kontext bleiben darf ===
+# (gitignore-Negationen am Ende, damit sie greifen)
+!CLAUDE.md
+!README.md
+!*.md
+!*.sh
+!*.py
+!*.toml
+!*.yaml
+!*.yml
+!*.json
+!*.txt
+!Dockerfile
+!docker-compose*.yml
+!.gitlab-ci.yml
+!.github/

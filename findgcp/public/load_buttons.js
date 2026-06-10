@@ -66,6 +66,42 @@
         return e;
     }
 
+    // --- i18n -------------------------------------------------------------
+    // WebODM's JS catalog (jsi18n) is restricted to packages=['app'], so plugin
+    // strings can't ride on it. This dialog carries its own small dictionary.
+    // Language: Django's language cookie if set, else the browser language.
+    var MESSAGES = {
+        de: {
+            "New task with Find-GCP": "Neue Task mit Find-GCP",
+            "Task name": "Task-Name",
+            "(optional)": "(optional)",
+            "Images": "Bilder",
+            "Drone images containing the ArUco markers.": "Drohnenbilder mit den ArUco-Markern.",
+            "GCP coordinate file": "GCP-Koordinatendatei",
+            "id easting northing elevation (whitespace or comma separated).": "id Rechtswert Hochwert Höhe (durch Leerzeichen oder Komma getrennt).",
+            "EPSG (target CRS)": "EPSG (Ziel-CRS)",
+            "ArUco dictionary": "ArUco-Dictionary",
+            "Color adjustment (strong sunlight)": "Farbkorrektur (starkes Sonnenlicht)",
+            "Cancel": "Abbrechen",
+            "Create &amp; detect GCPs": "Anlegen &amp; GCPs erkennen",
+            "Please select at least 2 images.": "Bitte mindestens 2 Bilder auswählen.",
+            "Please select a GCP coordinate file.": "Bitte eine GCP-Koordinatendatei auswählen.",
+            "Creating task…": "Lege Task an…",
+            "Uploading images…": "Lade Bilder hoch…",
+            "Detecting GCPs…": "Erkenne GCPs…",
+            "Detected {n} GCP entries ({m} markers). Attaching…": "{n} GCP-Einträge erkannt ({m} Marker). Hänge an…",
+            "Starting processing…": "Starte Verarbeitung…",
+            "Task created and processing with GCP. Closing…": "Task angelegt, Verarbeitung mit GCP läuft. Schließe…"
+        }
+    };
+
+    function tr(s) {
+        var m = document.cookie.match(/(?:^|;\s*)django_language=([^;]+)/);
+        var lang = (m ? m[1] : (navigator.language || "en")).slice(0, 2).toLowerCase();
+        var dict = MESSAGES[lang];
+        return (dict && dict[s]) || s;
+    }
+
     function openDialog(projectId, onNewTaskAdded) {
         var backdrop = el("div", { "class": "modal-backdrop fade in" });
         var modal = el("div", { "class": "modal fade in", style: "display:block", role: "dialog" });
@@ -74,21 +110,21 @@
               '<div class="modal-content">' +
                 '<div class="modal-header">' +
                   '<button type="button" class="close" data-x>&times;</button>' +
-                  '<h4 class="modal-title"><i class="fa fa-map-marker-alt"></i> New task with Find-GCP</h4>' +
+                  '<h4 class="modal-title"><i class="fa fa-map-marker-alt"></i> ' + tr("New task with Find-GCP") + '</h4>' +
                 '</div>' +
                 '<div class="modal-body">' +
-                  '<div class="form-group"><label>Task name</label>' +
-                    '<input type="text" class="form-control" data-name placeholder="(optional)"></div>' +
-                  '<div class="form-group"><label>Images</label>' +
+                  '<div class="form-group"><label>' + tr("Task name") + '</label>' +
+                    '<input type="text" class="form-control" data-name placeholder="' + tr("(optional)") + '"></div>' +
+                  '<div class="form-group"><label>' + tr("Images") + '</label>' +
                     '<input type="file" data-images multiple accept=".jpg,.jpeg,.png,.tif,.tiff,image/*">' +
-                    '<p class="help-block">Drone images containing the ArUco markers.</p></div>' +
-                  '<div class="form-group"><label>GCP coordinate file</label>' +
+                    '<p class="help-block">' + tr("Drone images containing the ArUco markers.") + '</p></div>' +
+                  '<div class="form-group"><label>' + tr("GCP coordinate file") + '</label>' +
                     '<input type="file" data-coords accept=".txt,.csv,text/plain">' +
-                    '<p class="help-block">id easting northing elevation (whitespace or comma separated).</p></div>' +
+                    '<p class="help-block">' + tr("id easting northing elevation (whitespace or comma separated).") + '</p></div>' +
                   '<div class="row">' +
-                    '<div class="col-sm-6 form-group"><label>EPSG (target CRS)</label>' +
+                    '<div class="col-sm-6 form-group"><label>' + tr("EPSG (target CRS)") + '</label>' +
                       '<input type="number" class="form-control" data-epsg value="28191"></div>' +
-                    '<div class="col-sm-6 form-group"><label>ArUco dictionary</label>' +
+                    '<div class="col-sm-6 form-group"><label>' + tr("ArUco dictionary") + '</label>' +
                       '<select class="form-control" data-dict><option value="1" selected>1 — DICT_4X4_100</option><option value="99">99 — custom 3×3</option></select></div>' +
                   '</div>' +
                   '<div class="row">' +
@@ -97,12 +133,12 @@
                     '<div class="col-sm-6 form-group"><label>ignore</label>' +
                       '<input type="number" step="0.01" min="0" max="0.99" class="form-control" data-ignore value="0.33"></div>' +
                   '</div>' +
-                  '<div class="checkbox"><label><input type="checkbox" data-adjust checked> Color adjustment (strong sunlight)</label></div>' +
+                  '<div class="checkbox"><label><input type="checkbox" data-adjust checked> ' + tr("Color adjustment (strong sunlight)") + '</label></div>' +
                   '<div data-status style="display:none;margin-top:10px;padding:8px 12px;border-radius:4px;background:#f3f3f3;"></div>' +
                 '</div>' +
                 '<div class="modal-footer">' +
-                  '<button type="button" class="btn btn-default" data-x>Cancel</button>' +
-                  '<button type="button" class="btn btn-primary" data-go><i class="fa fa-cogs"></i> Create &amp; detect GCPs</button>' +
+                  '<button type="button" class="btn btn-default" data-x>' + tr("Cancel") + '</button>' +
+                  '<button type="button" class="btn btn-primary" data-go><i class="fa fa-cogs"></i> ' + tr("Create &amp; detect GCPs") + '</button>' +
                 '</div>' +
               '</div>' +
             '</div>';
@@ -124,8 +160,8 @@
         q("[data-go]").onclick = function () {
             var images = q("[data-images]").files;
             var coords = q("[data-coords]").files[0];
-            if (!images || images.length < 2) { status("Please select at least 2 images.", "error"); return; }
-            if (!coords) { status("Please select a GCP coordinate file.", "error"); return; }
+            if (!images || images.length < 2) { status(tr("Please select at least 2 images."), "error"); return; }
+            if (!coords) { status(tr("Please select a GCP coordinate file."), "error"); return; }
 
             var params = {
                 epsg: q("[data-epsg]").value,
@@ -138,7 +174,7 @@
             q("[data-go]").disabled = true;
             runSinglePass(projectId, images, coords, params, name, status)
                 .then(function (taskId) {
-                    status('<i class="fa fa-check"></i> Task created and processing with GCP. Closing…', "ok");
+                    status('<i class="fa fa-check"></i> ' + tr("Task created and processing with GCP. Closing…"), "ok");
                     setTimeout(function () { close(); if (onNewTaskAdded) onNewTaskAdded(); }, 1200);
                 })
                 .catch(function (e) {
@@ -163,7 +199,7 @@
     function runSinglePass(projectId, images, coordsFile, params, name, status) {
         var base = "/api/projects/" + projectId + "/tasks/";
         var taskId;
-        status('<i class="fa fa-spinner fa-spin"></i> Creating task…');
+        status('<i class="fa fa-spinner fa-spin"></i> ' + tr("Creating task…"));
         var createFd = new FormData();
         createFd.append("partial", "true");
         if (name) createFd.append("name", name);
@@ -174,7 +210,7 @@
             var chain = Promise.resolve();
             Array.prototype.forEach.call(images, function (file, i) {
                 chain = chain.then(function () {
-                    status('<i class="fa fa-spinner fa-spin"></i> Uploading images… ' + (i + 1) + "/" + images.length);
+                    status('<i class="fa fa-spinner fa-spin"></i> ' + tr("Uploading images…") + ' ' + (i + 1) + "/" + images.length);
                     var fd = new FormData();
                     fd.append("images", file, file.name);
                     return postMultipart(base + taskId + "/upload/", fd);
@@ -182,7 +218,7 @@
             });
             return chain;
         }).then(function () {
-            status('<i class="fa fa-spinner fa-spin"></i> Detecting GCPs…');
+            status('<i class="fa fa-spinner fa-spin"></i> ' + tr("Detecting GCPs…"));
             var fd = new FormData();
             fd.append("coords", coordsFile, "gcp_coords.txt");
             fd.append("epsg", params.epsg);
@@ -195,13 +231,15 @@
             if (started.error) throw new Error(started.error);
             return pollDetect(taskId, started.celery_task_id, status);
         }).then(function (summary) {
-            status('<i class="fa fa-spinner fa-spin"></i> Detected ' + summary.detections +
-                   " GCP entries (" + summary.unique_markers + " markers). Attaching…");
+            status('<i class="fa fa-spinner fa-spin"></i> ' +
+                   tr("Detected {n} GCP entries ({m} markers). Attaching…")
+                       .replace("{n}", summary.detections)
+                       .replace("{m}", summary.unique_markers));
             var fd = new FormData();
             fd.append("images", new Blob([summary.gcp_list], { type: "text/plain" }), "gcp_list.txt");
             return postMultipart(base + taskId + "/upload/", fd);
         }).then(function () {
-            status('<i class="fa fa-spinner fa-spin"></i> Starting processing…');
+            status('<i class="fa fa-spinner fa-spin"></i> ' + tr("Starting processing…"));
             return postForm(base + taskId + "/commit/", {});
         }).then(function () {
             return taskId;

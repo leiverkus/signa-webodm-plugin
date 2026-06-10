@@ -72,7 +72,9 @@ class TaskFindGCPDetect(TaskView):
 
         params, error = validate_params(request.data)
         if error is not None:
-            return Response({'error': error}, status=status.HTTP_200_OK)
+            # params.py is Django-free and returns plain English strings; the
+            # runtime gettext lookup translates them (msgids are in our .po).
+            return Response({'error': _(error)}, status=status.HTTP_200_OK)
 
         image_paths = [task.get_image_path(i) for i in task.scan_images()]
         if not image_paths:

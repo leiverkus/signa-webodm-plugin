@@ -201,6 +201,22 @@ If you prefer to run detection outside WebODM, the original Bash pipeline is in
 Find-GCP (`gcp_find.py`), builds a sanity report and can prep/upload a
 WebODM-ready folder. Run `standalone/findgcp-webodm.sh --help` for details.
 
+## Languages
+
+The plugin is available in **English** and **German** and follows WebODM's
+active language (gettext, like WebODM itself). The catalogs live in
+[`findgcp/locale/`](findgcp/locale/) and are compiled by
+[`scripts/compile_messages.py`](scripts/compile_messages.py) (pure Python, no
+gettext toolchain needed) during the plugin build. CI guards that every
+translatable string has a catalog entry. To add a language, copy
+`locale/de/LC_MESSAGES/django.po`, translate the msgstrs, and add a matching
+dictionary to `public/load_buttons.js` for the dashboard dialog.
+
+Known limits: detection-internal error texts from the worker
+(`gcp_detect.py`) stay English (the function is deliberately Django-free), and
+the dashboard dialog infers the language from Django's language cookie or the
+browser language.
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md). The plugin is `0.x` and under active

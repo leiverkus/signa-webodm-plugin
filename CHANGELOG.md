@@ -9,6 +9,26 @@ and behaviour may change between minor releases.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-06-10
+
+### Added
+- **German translation (de)** alongside English, using the same gettext
+  mechanism as WebODM itself. The plugin ships its own catalog
+  (`findgcp/locale/de/LC_MESSAGES/django.po`/`.mo`) and appends its locale dir
+  to Django's `LOCALE_PATHS` at plugin registration (WebODM has no official
+  plugin-translation support; `register()` runs at worker boot, and the
+  per-language catalog cache is reset so the merged catalog always applies).
+  Covers both pages, menu entries, the settings form and all API/validation
+  error messages.
+- The dashboard **Find-GCP Task** dialog carries its own small dictionary
+  (WebODM's JS catalog is restricted to `packages=['app']`); language is taken
+  from Django's language cookie with a browser-language fallback.
+- `scripts/compile_messages.py`: pure-Python `.po → .mo` compiler (no gettext
+  toolchain needed); wired into `build-plugin.sh`.
+- Translation drift guards in CI: every `{% trans %}`/`{% blocktrans %}` string
+  and every python-side message (incl. all `params.py` validation errors) must
+  exist in the catalog, and the committed `.mo` must match the `.po`.
+
 ## [0.5.0] - 2026-06-10
 
 ### Added

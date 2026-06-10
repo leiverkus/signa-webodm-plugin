@@ -1,0 +1,208 @@
+# German translations for the Find-GCP WebODM plugin.
+# msgids must match the source strings in findgcp/templates/*.html,
+# findgcp/plugin.py, findgcp/api.py and findgcp/params.py exactly —
+# tests/test_translations.py guards against drift.
+msgid ""
+msgstr ""
+"Project-Id-Version: findgcp\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: templates/app.html
+msgid "Find-GCP — ArUco GCP detection"
+msgstr "Find-GCP — ArUco-GCP-Erkennung"
+
+#: templates/app.html (blocktrans)
+msgid "Drop drone images and a GCP coordinate file, run automatic ArUco detection, and download an ODM-compatible <code>gcp_list.txt</code>. A scratch task is created on the server for the detection and deleted again afterwards — nothing is processed."
+msgstr "Drohnenbilder und eine GCP-Koordinatendatei ablegen, automatische ArUco-Erkennung starten und eine ODM-kompatible <code>gcp_list.txt</code> herunterladen. Für die Erkennung wird auf dem Server eine temporäre Task angelegt und anschließend wieder gelöscht — es wird nichts prozessiert."
+
+#: templates/app.html
+msgid "To detect and georeference in one processing run instead, use the"
+msgstr "Um stattdessen in einem einzigen Verarbeitungslauf zu erkennen und zu georeferenzieren, nutzen Sie den Button"
+
+#: templates/app.html
+msgid "button on the dashboard."
+msgstr "im Dashboard."
+
+#: templates/app.html — proper noun (button label), kept as-is
+msgid "Find-GCP Task"
+msgstr "Find-GCP Task"
+
+#: templates/app.html
+msgid "Drop images here, or click to choose"
+msgstr "Bilder hier ablegen oder klicken zum Auswählen"
+
+#: templates/app.html, plugin.py
+msgid "GCP coordinate file"
+msgstr "GCP-Koordinatendatei"
+
+#: templates/app.html
+msgid "Format per line: id easting northing elevation (whitespace or comma separated)."
+msgstr "Format pro Zeile: id Rechtswert Hochwert Höhe (durch Leerzeichen oder Komma getrennt)."
+
+#: templates/app.html, plugin.py
+msgid "EPSG (target CRS)"
+msgstr "EPSG (Ziel-CRS)"
+
+#: templates/app.html, plugin.py
+msgid "ArUco dictionary"
+msgstr "ArUco-Dictionary"
+
+#: templates/app.html, plugin.py — parameter name, kept as-is
+msgid "minrate"
+msgstr "minrate"
+
+#: templates/app.html, plugin.py — parameter name, kept as-is
+msgid "ignore"
+msgstr "ignore"
+
+#: templates/app.html, plugin.py
+msgid "Color adjustment (recommended for strong sunlight)"
+msgstr "Farbkorrektur (empfohlen bei starkem Sonnenlicht)"
+
+#: templates/app.html
+msgid "Detect GCPs"
+msgstr "GCPs erkennen"
+
+#: templates/app.html
+msgid "images selected"
+msgstr "Bilder ausgewählt"
+
+#: templates/app.html
+msgid "Detection complete"
+msgstr "Erkennung abgeschlossen"
+
+#: templates/app.html
+msgid "Images"
+msgstr "Bilder"
+
+#: templates/app.html
+msgid "unreadable"
+msgstr "nicht lesbar"
+
+#: templates/app.html
+msgid "GCP entries"
+msgstr "GCP-Einträge"
+
+#: templates/app.html
+msgid "Unique markers"
+msgstr "Eindeutige Marker"
+
+#: templates/app.html
+msgid "Fewer than 5 unique markers — 5–10+ recommended for a robust bundle adjustment."
+msgstr "Weniger als 5 eindeutige Marker — für eine robuste Bündelblockausgleichung werden 5–10+ empfohlen."
+
+#: templates/app.html
+msgid "Detected but not in the coordinate file:"
+msgstr "Erkannt, aber nicht in der Koordinatendatei:"
+
+#: templates/app.html
+msgid "Coordinate lines skipped (malformed / non-integer id / nan/inf):"
+msgstr "Übersprungene Koordinatenzeilen (fehlerhaft / keine ganzzahlige ID / nan/inf):"
+
+#: templates/app.html
+msgid "Duplicate coordinate ids (first kept):"
+msgstr "Doppelte Koordinaten-IDs (erste behalten):"
+
+#: templates/app.html
+msgid "Marker ID"
+msgstr "Marker-ID"
+
+#: templates/app.html
+msgid "Download gcp_list.txt"
+msgstr "gcp_list.txt herunterladen"
+
+#: templates/app.html
+msgid "Detecting markers…"
+msgstr "Erkenne Marker…"
+
+#: templates/app.html
+msgid "Please select at least 1 image."
+msgstr "Bitte mindestens 1 Bild auswählen."
+
+#: templates/app.html
+msgid "Please choose a coordinate file."
+msgstr "Bitte eine Koordinatendatei auswählen."
+
+#: templates/app.html
+msgid "Preparing…"
+msgstr "Vorbereiten…"
+
+#: templates/app.html
+msgid "Uploading images…"
+msgstr "Lade Bilder hoch…"
+
+#: templates/settings.html
+msgid "Find-GCP — default settings"
+msgstr "Find-GCP — Standardeinstellungen"
+
+#: templates/settings.html (blocktrans)
+msgid "These values pre-fill the detection parameters on the Find-GCP page and in the dashboard <strong>Find-GCP Task</strong> dialog. They are saved per user — you can still override them per run."
+msgstr "Diese Werte füllen die Erkennungsparameter auf der Find-GCP-Seite und im Dashboard-Dialog <strong>Find-GCP Task</strong> vor. Sie werden pro Benutzer gespeichert — pro Lauf können sie weiterhin überschrieben werden."
+
+#: templates/settings.html
+msgid "Save defaults"
+msgstr "Standardwerte speichern"
+
+#: plugin.py (menu)
+msgid "Find-GCP Settings"
+msgstr "Find-GCP-Einstellungen"
+
+#: plugin.py
+msgid "Find-GCP default settings saved."
+msgstr "Find-GCP-Standardeinstellungen gespeichert."
+
+#: api.py
+msgid "No GCP coordinate file uploaded."
+msgstr "Keine GCP-Koordinatendatei hochgeladen."
+
+#: api.py
+msgid "Coordinate file too large (max 5 MB)."
+msgstr "Koordinatendatei zu groß (max. 5 MB)."
+
+#: api.py
+msgid "Cannot read the coordinate file."
+msgstr "Koordinatendatei kann nicht gelesen werden."
+
+#: api.py
+msgid "This task has no images."
+msgstr "Diese Task hat keine Bilder."
+
+#: api.py
+msgid "Result not found."
+msgstr "Ergebnis nicht gefunden."
+
+#: api.py
+msgid "Detection failed in the worker: %(err)s"
+msgstr "Erkennung im Worker fehlgeschlagen: %(err)s"
+
+#: params.py (looked up at runtime via _(error) in api.py)
+msgid "A valid EPSG code is required."
+msgstr "Ein gültiger EPSG-Code ist erforderlich."
+
+#: params.py
+msgid "EPSG code out of range (1024-999999)."
+msgstr "EPSG-Code außerhalb des gültigen Bereichs (1024–999999)."
+
+#: params.py
+msgid "Invalid ArUco dictionary id."
+msgstr "Ungültige ArUco-Dictionary-ID."
+
+#: params.py
+msgid "Unsupported ArUco dictionary id (use 0-20 or 99)."
+msgstr "Nicht unterstützte ArUco-Dictionary-ID (0–20 oder 99 verwenden)."
+
+#: params.py
+msgid "Invalid detection parameters."
+msgstr "Ungültige Erkennungsparameter."
+
+#: params.py
+msgid "minrate must be in the range (0, 1]."
+msgstr "minrate muss im Bereich (0, 1] liegen."
+
+#: params.py
+msgid "ignore must be in the range [0, 1)."
+msgstr "ignore muss im Bereich [0, 1) liegen."

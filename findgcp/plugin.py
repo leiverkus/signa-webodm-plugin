@@ -1,4 +1,7 @@
+import os
+
 from app.plugins import PluginBase, Menu, MountPoint
+from django.conf import settings
 from django.shortcuts import render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -19,6 +22,22 @@ class FindGCPSettingsForm(forms.Form):
 
 
 class Plugin(PluginBase):
+    def register(self):
+        super().register()
+        # WebODM has no official plugin-translation support: LOCALE_PATHS only
+        # contains WebODM's own locale dir, and plugins are not Django apps. We
+        # ship our own catalogs (locale/de/LC_MESSAGES/django.mo) and append our
+        # locale dir at registration time — register() runs at worker boot
+        # (app/boot.py -> init_plugins), i.e. in every gunicorn worker. Resetting
+        # Django's per-language catalog cache makes already-built languages pick
+        # up the merged catalog regardless of activation order.
+        locale_dir = self.get_path("locale")
+        if os.path.isdir(locale_dir) and locale_dir not in settings.LOCALE_PATHS:
+            settings.LOCALE_PATHS = list(settings.LOCALE_PATHS) + [locale_dir]
+            from django.utils.translation import trans_real
+            trans_real._translations = {}
+            trans_real._default = None
+
     def main_menu(self):
         return [
             Menu(_("Find-GCP"), self.public_url(""), "fa fa-map-marker-alt fa-fw"),

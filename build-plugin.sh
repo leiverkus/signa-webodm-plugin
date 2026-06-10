@@ -37,6 +37,13 @@ VERSION="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["vers
 ZIP_NAME="findgcp-${VERSION}.zip"
 ZIP_PATH="$DIST_DIR/$ZIP_NAME"
 
+# ---------- Compile translations ----------
+if [[ -d "$PLUGIN_DIR/locale" ]]; then
+  log "Compiling translations (.po -> .mo)"
+  python3 "$SCRIPT_DIR/scripts/compile_messages.py" "$PLUGIN_DIR/locale" \
+    || err "Translation compilation failed"
+fi
+
 # ---------- Build ----------
 mkdir -p "$DIST_DIR"
 rm -f "$ZIP_PATH"

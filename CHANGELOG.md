@@ -30,7 +30,11 @@ production-blocking issues; not yet verified against a live WebODM instance.
 - **Result exposure**: removed the celery-id-only download endpoint. The
   `gcp_list` text now travels back in the worker result and is downloaded
   client-side via a Blob; the status/result endpoint requires authentication.
-  No server-side temporary files or directories are created.
+  No server-side temporary files or directories are created. Results are further
+  bound to the user who started the run (via the plugin's per-user datastore)
+  and to the task pk: the status endpoint only returns a result whose celery id
+  is recorded in the requesting user's store with a matching task. The ownership
+  record is released once a terminal result has been served.
 
 ### Added
 - Unit test suite (11 tests, OpenCV mocked). The key test reproduces WebODM's

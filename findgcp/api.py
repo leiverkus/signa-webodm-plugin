@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.utils.translation import gettext_lazy as _
 
+from app.plugins import UserDataStore
 from app.plugins.views import TaskView
 from app.plugins.worker import run_function_async
 from app.api.common import check_project_perms
@@ -12,6 +13,15 @@ from .gcp_detect import detect_gcps
 
 # Predefined OpenCV ArUco dictionary ids span 0..20; 99 is Find-GCP's custom 3x3.
 VALID_DICTS = set(range(0, 21)) | {99}
+
+# Datastore namespace. Must equal the plugin directory name (what
+# PluginBase.get_name() / get_user_data_store() use), so detect (write) and
+# check (read) address the same per-user store.
+PLUGIN_NAMESPACE = "findgcp"
+
+
+def _run_key(celery_task_id):
+    return "run:{}".format(celery_task_id)
 
 
 def _validate_params(data):
@@ -86,18 +96,33 @@ class TaskFindGCPDetect(TaskView):
             params['dict_id'], params['minrate'], params['ignore'],
             params['adjust'], task.name).task_id
 
+        # Bind this run to the requesting user (per-user datastore) and to the
+        # task, so only the owner can poll/read its result.
+        store = UserDataStore(PLUGIN_NAMESPACE, request.user)
+        store.set_string(_run_key(celery_task_id), str(task.id))
+
         return Response({'celery_task_id': celery_task_id}, status=status.HTTP_200_OK)
 
 
 class TaskFindGCPCheck(APIView):
     """Poll detection status; on completion returns the summary and gcp_list text.
 
-    Requires authentication (unlike WebODM's default AllowAny CheckTask) so that
-    anonymous callers cannot read results by guessing a celery id.
+    Results are bound to the user who started the run via the plugin's per-user
+    datastore, and to the task: the run's celery id must be recorded in the
+    requesting user's store with a matching task pk. This closes the gap where
+    any authenticated user could read a result by knowing its celery id.
     """
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, celery_task_id=None, **kwargs):
+    def get(self, request, pk=None, celery_task_id=None, **kwargs):
+        store = UserDataStore(PLUGIN_NAMESPACE, request.user)
+        owned_task = store.get_string(_run_key(celery_task_id), "")
+        if not owned_task or owned_task != str(pk):
+            # Not started by this user (or not for this task). Return a terminal
+            # error (HTTP 200) so the client stops polling instead of looping.
+            return Response({'ready': True, 'error': _('Result not found.')},
+                            status=status.HTTP_200_OK)
+
         res = TestSafeAsyncResult(celery_task_id)
         if not res.ready():
             out = {'ready': False}
@@ -106,7 +131,11 @@ class TaskFindGCPCheck(APIView):
                     out[k] = res.info[k]
             return Response(out, status=status.HTTP_200_OK)
 
+        # Terminal: release the ownership record (the gcp_list is delivered here
+        # and downloaded client-side, so the run does not need to be re-read).
         result = res.get()
+        store.del_key(_run_key(celery_task_id))
+
         if result.get('error') is not None:
             return Response({'ready': True, 'error': result['error']})
 

@@ -24,5 +24,5 @@ class Plugin(PluginBase):
     def api_mount_points(self):
         return [
             MountPoint('task/(?P<pk>[^/.]+)/detect', TaskFindGCPDetect.as_view()),
-            MountPoint('task/[^/.]+/check/(?P<celery_task_id>.+)', TaskFindGCPCheck.as_view()),
+            MountPoint('task/(?P<pk>[^/.]+)/check/(?P<celery_task_id>.+)', TaskFindGCPCheck.as_view()),
         ]

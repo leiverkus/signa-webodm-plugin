@@ -43,6 +43,11 @@ The detect endpoint requires an authenticated user with `change_project`
 permission on the task's project — enforced even for public tasks (unlike
 WebODM's default `AllowAny` task views), because detection is expensive.
 
+Each run is bound to the user who started it (recorded in the plugin's per-user
+datastore) and to the task. The status/result endpoint only returns a run whose
+celery id is registered to the requesting user with a matching task pk, so one
+user cannot read another's result by knowing its celery id.
+
 ## Usage
 
 Open **Find-GCP** from the menu, then:

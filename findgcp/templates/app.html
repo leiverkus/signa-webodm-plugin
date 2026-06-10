@@ -1,5 +1,5 @@
 {% extends "app/plugins/templates/base.html" %}
-{% load i18n %}
+{% load i18n l10n %}
 
 {% block content %}
 {% csrf_token %}
@@ -32,7 +32,7 @@
     <div class="grid">
       <div class="row">
         <label>{% trans "EPSG (target CRS)" %}</label>
-        <input type="number" id="epsg" value="{{ defaults.epsg }}">
+        <input type="number" id="epsg" value="{{ defaults.epsg|unlocalize }}">
       </div>
       <div class="row">
         <label>{% trans "ArUco dictionary" %}</label>
@@ -43,11 +43,11 @@
       </div>
       <div class="row">
         <label>{% trans "minrate" %}</label>
-        <input type="number" id="minrate" value="{{ defaults.minrate }}" step="0.001" min="0.005">
+        <input type="number" id="minrate" value="{{ defaults.minrate|unlocalize }}" step="0.001" min="0.005">
       </div>
       <div class="row">
         <label>{% trans "ignore" %}</label>
-        <input type="number" id="ignore" value="{{ defaults.ignore }}" step="0.01" min="0" max="0.99">
+        <input type="number" id="ignore" value="{{ defaults.ignore|unlocalize }}" step="0.01" min="0" max="0.99">
       </div>
     </div>
 

@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-12
+
+### Added
+- **Print-ready ArUco marker sheets from the settings page.** A new "Print
+  ArUco markers" form (Find-GCP Settings) generates a PDF with one marker per
+  page: any supported dictionary (pre-selected from the user's default), a
+  free id range (capacity-checked per dictionary, max 100 pages), DIN page
+  sizes A6–A2, a gray variant against burnt-in markers in strong sunlight, and
+  an optional center aiming aid for total station / laser disto work (red
+  cross, red cross with white halo, or red dot with white ring — placed on the
+  exact point Find-GCP reports as the GCP). Markers are sized to the page with
+  a one-module quiet zone; each page carries a small meta line (dictionary,
+  printed size, `top ^`) and a large, bold marker number readable from standing
+  height with the sheet on the ground. Every page is run through the ArUco
+  detector before it is embedded (self-check), so an undetectable sheet can
+  never be produced. The PDF is assembled by a minimal built-in writer — no new
+  dependencies; labels use Pillow (already a WebODM dependency) so the typeface
+  matches the standalone generator, with an OpenCV/Hershey fallback if Pillow is
+  unavailable (`findgcp/marker_pdf.py`, endpoint `plugins/findgcp/markers/pdf`).
+
+### Changed
+- `build-plugin.sh` now clears previously built `dist/findgcp-*.zip` before
+  packaging, so only the current version's artifact remains.
+
 ## [1.2.0] - 2026-06-11
 
 ### Added

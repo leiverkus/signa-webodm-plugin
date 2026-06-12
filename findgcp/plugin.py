@@ -2,14 +2,15 @@ import os
 
 from app.plugins import PluginBase, Menu, MountPoint
 from django.conf import settings
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext as _, gettext_lazy as _l
 from django import forms
 
 from .api import TaskFindGCPDetect, TaskFindGCPCheck, FindGCPSettings, read_user_defaults
-from .params import DICT_CHOICES
+from .params import DICT_CHOICES, validate_marker_params
 
 
 # Field labels/help_texts are evaluated at class-definition (module import)
@@ -92,8 +93,13 @@ class Plugin(PluginBase):
                     ds.set_bool('default_adjust', cd['adjust'])
                     messages.success(request, _("Find-GCP default settings saved."))
                 else:
+                    # The marker-print section needs its context here too,
+                    # or its dictionary dropdown renders empty after a failed
+                    # validation of the defaults form.
                     return render(request, self.template_path("settings.html"),
-                                  {'title': 'Find-GCP Settings', 'form': form})
+                                  {'title': 'Find-GCP Settings', 'form': form,
+                                   'dict_choices': DICT_CHOICES,
+                                   'defaults': read_user_defaults(ds)})
 
             d = read_user_defaults(ds)
             form = FindGCPSettingsForm(initial={
@@ -101,11 +107,39 @@ class Plugin(PluginBase):
                 'minrate': d['minrate'], 'ignore': d['ignore'], 'adjust': d['adjust'],
             })
             return render(request, self.template_path("settings.html"),
-                          {'title': 'Find-GCP Settings', 'form': form})
+                          {'title': 'Find-GCP Settings', 'form': form,
+                           'dict_choices': DICT_CHOICES, 'defaults': d})
+
+        @login_required
+        def marker_pdf_view(request):
+            # Plain form POST from the settings page; the response is the PDF
+            # itself (the browser downloads it and stays on the settings page).
+            # Errors go through the messages framework + redirect instead.
+            if request.method != 'POST':
+                return redirect(self.public_url("settings"))
+            params, error = validate_marker_params(request.POST)
+            if error is None:
+                # Imported lazily: pulls in cv2, which only the enabled plugin's
+                # site-packages guarantees — don't pay/risk that at module load.
+                from .marker_pdf import build_marker_pdf
+                pdf, error = build_marker_pdf(**params)
+            if error is not None:
+                # params/marker_pdf are Django-free and return plain English
+                # strings; the runtime gettext lookup translates them.
+                messages.error(request, _(error))
+                return redirect(self.public_url("settings"))
+
+            filename = 'aruco-markers-dict{}-id{}-{}-{}{}-{}.pdf'.format(
+                params['dict_id'], params['id_from'], params['id_to'],
+                params['page'], '-gray' if params['gray'] else '', params['aid'])
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            return response
 
         return [
             MountPoint('$', index),
             MountPoint('settings$', settings_view),
+            MountPoint('markers/pdf$', marker_pdf_view),
         ]
 
     def api_mount_points(self):

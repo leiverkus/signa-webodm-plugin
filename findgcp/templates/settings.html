@@ -12,7 +12,11 @@
 
   {% if messages %}
     {% for message in messages %}
-      <div class="status ok"><i class="fa fa-check"></i> {{ message }}</div>
+      {% if 'error' in message.tags %}
+        <div class="status error"><i class="fa fa-exclamation-triangle"></i> {{ message }}</div>
+      {% else %}
+        <div class="status ok"><i class="fa fa-check"></i> {{ message }}</div>
+      {% endif %}
     {% endfor %}
   {% endif %}
 
@@ -32,6 +36,60 @@
     {% endfor %}
     <div class="frow">
       <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {% trans "Save defaults" %}</button>
+    </div>
+  </form>
+
+  <hr>
+
+  <h2><i class="fa fa-print"></i> {% trans "Print ArUco markers" %}</h2>
+  <p class="help">
+    {% blocktrans %}Generates a print-ready PDF, one marker per page, sized to the page with a one-module white quiet zone. The aiming aid sits on the marker center — the exact point Find-GCP reports — for total station or laser disto measurements. Rule of thumb for drone flights: marker side ≥ 40 × ground resolution (GSD). Print at 100% scale (no fit-to-page) and laminate matte, not glossy.{% endblocktrans %}
+  </p>
+
+  <form method="post" action="markers/pdf">
+    {% csrf_token %}
+    <div class="grid">
+      <div class="frow">
+        <label>{% trans "ArUco dictionary" %}</label>
+        <select name="dict">
+          {% for value, label in dict_choices %}
+          <option value="{{ value }}" {% if value == defaults.dict|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="frow">
+        <label>{% trans "Page size (DIN A)" %}</label>
+        <select name="page">
+          <option value="a6">A6 (105 × 148 mm)</option>
+          <option value="a5">A5 (148 × 210 mm)</option>
+          <option value="a4" selected>A4 (210 × 297 mm)</option>
+          <option value="a3">A3 (297 × 420 mm)</option>
+          <option value="a2">A2 (420 × 594 mm)</option>
+        </select>
+      </div>
+      <div class="frow">
+        <label>{% trans "First marker id" %}</label>
+        <input type="number" name="id_from" value="0" min="0" step="1">
+      </div>
+      <div class="frow">
+        <label>{% trans "Last marker id" %}</label>
+        <input type="number" name="id_to" value="11" min="0" step="1">
+      </div>
+      <div class="frow">
+        <label>{% trans "Center aiming aid" %}</label>
+        <select name="aid">
+          <option value="none">{% trans "No aiming aid" %}</option>
+          <option value="cross" selected>{% trans "Red cross" %}</option>
+          <option value="cross_halo">{% trans "Red cross with white halo" %}</option>
+          <option value="dot_ring">{% trans "Red dot with white ring" %}</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <label class="cb"><input type="checkbox" name="gray"> {% trans "Gray markers (less burn-in in strong sunlight)" %}</label>
+    </div>
+    <div class="frow">
+      <button type="submit" class="btn btn-primary"><i class="fa fa-print"></i> {% trans "Generate marker PDF" %}</button>
     </div>
   </form>
 </div>

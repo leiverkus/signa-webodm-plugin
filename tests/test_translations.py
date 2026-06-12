@@ -39,6 +39,17 @@ PYTHON_MSGIDS = [
     "minrate must be in the range [0.005, 1] — values below 0.005 cause "
     "excessive false positives.",
     "ignore must be in the range [0, 1).",
+    # marker printing (params.py / marker_pdf.py, translated via _(error))
+    "Invalid marker id range.",
+    "Marker id range too large (max 100 markers per PDF).",
+    "Marker id range exceeds the capacity of the selected dictionary.",
+    "Unsupported page size (use A2-A6).",
+    "Unsupported center aiming aid.",
+    "OpenCV with the ArUco module (cv2.aruco) is not available in the webapp. "
+    "It is installed automatically when the plugin is enabled (after a webapp "
+    "restart); see the plugin README.",
+    "Marker self-check failed: a rendered page was not detectable. Try a "
+    "larger page size or a different center aiming aid.",
 ]
 
 
@@ -98,6 +109,21 @@ def test_params_errors_match_catalog():
         _p, err = params.validate_params(data)
         assert err is not None
         assert err in PO, "params error not in de catalog: {!r}".format(err)
+
+    marker_probes = [
+        {"dict": "x"},
+        {"dict": "50"},
+        {"id_from": "x"},
+        {"id_from": "5", "id_to": "4"},
+        {"dict": "3", "id_to": "100"},
+        {"dict": "0", "id_to": "50"},
+        {"page": "letter"},
+        {"aid": "bullseye"},
+    ]
+    for data in marker_probes:
+        _p, err = params.validate_marker_params(data)
+        assert err is not None
+        assert err in PO, "marker params error not in de catalog: {!r}".format(err)
 
 
 def test_mo_compiles_and_translates(tmp_path):

@@ -123,3 +123,67 @@ def test_adjust_truthy_variants():
     for v in ("0", "false", "no", "off"):
         params, err = validate_params({"epsg": "28191", "adjust": v})
         assert err is None and params["adjust"] is False
+
+
+# --- validate_marker_params (marker-sheet printing) -------------------------
+
+validate_marker_params = _params.validate_marker_params
+
+
+def test_marker_defaults():
+    params, err = validate_marker_params({})
+    assert err is None
+    assert params == {"dict_id": 1, "id_from": 0, "id_to": 0,
+                      "page": "a4", "gray": False, "aid": "cross"}
+
+
+def test_marker_all_fields():
+    params, err = validate_marker_params({
+        "dict": "99", "id_from": "5", "id_to": "16",
+        "page": "A3", "gray": "on", "aid": "dot_ring"})
+    assert err is None
+    assert params == {"dict_id": 99, "id_from": 5, "id_to": 16,
+                      "page": "a3", "gray": True, "aid": "dot_ring"}
+
+
+def test_marker_bad_dict():
+    params, err = validate_marker_params({"dict": "50"})
+    assert params is None and "Unsupported" in err
+
+
+def test_marker_bad_range():
+    for data in ({"id_from": "x"}, {"id_from": "-1"},
+                 {"id_from": "5", "id_to": "4"}):
+        params, err = validate_marker_params(data)
+        assert params is None and "range" in err, data
+
+
+def test_marker_range_too_large():
+    params, err = validate_marker_params({"dict": "3", "id_from": "0", "id_to": "100"})
+    assert params is None and "too large" in err
+    params, err = validate_marker_params({"dict": "3", "id_from": "0", "id_to": "99"})
+    assert err is None
+
+
+def test_marker_range_must_fit_dictionary():
+    # DICT_4X4_50 has ids 0..49; AprilTag 16h5 only 0..29
+    params, err = validate_marker_params({"dict": "0", "id_to": "50"})
+    assert params is None and "capacity" in err
+    params, err = validate_marker_params({"dict": "0", "id_to": "49"})
+    assert err is None
+    params, err = validate_marker_params({"dict": "17", "id_to": "30"})
+    assert params is None and "capacity" in err
+
+
+def test_marker_capacity_table_covers_all_dicts():
+    assert set(_params.DICT_CAPACITY) == _params.VALID_DICTS
+
+
+def test_marker_bad_page():
+    params, err = validate_marker_params({"page": "letter"})
+    assert params is None and "page size" in err
+
+
+def test_marker_bad_aid():
+    params, err = validate_marker_params({"aid": "bullseye"})
+    assert params is None and "aiming aid" in err

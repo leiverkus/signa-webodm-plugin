@@ -1,4 +1,4 @@
-"""Pure parameter validation for the detect endpoint.
+"""Pure parameter validation for the detect and marker-print endpoints.
 
 Deliberately free of Django/WebODM imports so it can be unit-tested in CI
 without a running WebODM. Returns plain English error strings; the API view
@@ -80,3 +80,70 @@ def validate_params(data):
     adjust = str(data.get('adjust', 'true')).lower() in ('1', 'true', 'on', 'yes')
     return {'epsg': epsg, 'dict_id': dict_id, 'minrate': minrate,
             'ignore': ignore, 'adjust': adjust}, None
+
+
+# --- Marker-sheet printing (settings page → PDF download) -------------------
+
+# DIN A page formats offered by the print form, portrait (width, height) in mm.
+PAGE_SIZES_MM = {
+    'a6': (105, 148),
+    'a5': (148, 210),
+    'a4': (210, 297),
+    'a3': (297, 420),
+    'a2': (420, 594),
+}
+
+# Center aiming aids (for putting a total station / laser disto target on the
+# exact point Find-GCP reports — the marker center). The labels live in the
+# settings template as {% trans %} strings so this module stays Django-free.
+MARKER_AIDS = ('none', 'cross', 'cross_halo', 'dot_ring')
+
+# Ids per dictionary, verified against opencv-contrib 4.10/4.13 (bytesList row
+# counts). Lets validation reject an out-of-range id without importing cv2;
+# marker_pdf.py re-checks against the real dictionary as belt and braces.
+DICT_CAPACITY = {
+    0: 50, 1: 100, 2: 250, 3: 1000,         # 4x4
+    4: 50, 5: 100, 6: 250, 7: 1000,         # 5x5
+    8: 50, 9: 100, 10: 250, 11: 1000,       # 6x6
+    12: 50, 13: 100, 14: 250, 15: 1000,     # 7x7
+    16: 1024,                               # ARUCO_ORIGINAL
+    17: 30, 18: 35, 19: 2320, 20: 587,      # AprilTag 16h5/25h9/36h10/36h11
+    99: 32,                                 # Find-GCP custom 3x3
+}
+
+# One page per marker; keeps a synchronous request (and the PDF) bounded.
+MAX_MARKER_PAGES = 100
+
+
+def validate_marker_params(data):
+    """Validate marker-sheet parameters (same contract as validate_params)."""
+    try:
+        dict_id = int(data.get('dict', 1))
+    except (TypeError, ValueError):
+        return None, 'Invalid ArUco dictionary id.'
+    if dict_id not in VALID_DICTS:
+        return None, 'Unsupported ArUco dictionary id (use 0-20 or 99).'
+
+    try:
+        id_from = int(data.get('id_from', 0))
+        id_to = int(data.get('id_to', id_from))
+    except (TypeError, ValueError):
+        return None, 'Invalid marker id range.'
+    if id_from < 0 or id_to < id_from:
+        return None, 'Invalid marker id range.'
+    if id_to - id_from + 1 > MAX_MARKER_PAGES:
+        return None, 'Marker id range too large (max 100 markers per PDF).'
+    if id_to >= DICT_CAPACITY[dict_id]:
+        return None, 'Marker id range exceeds the capacity of the selected dictionary.'
+
+    page = str(data.get('page', 'a4')).lower()
+    if page not in PAGE_SIZES_MM:
+        return None, 'Unsupported page size (use A2-A6).'
+
+    aid = str(data.get('aid', 'cross')).lower()
+    if aid not in MARKER_AIDS:
+        return None, 'Unsupported center aiming aid.'
+
+    gray = str(data.get('gray', 'false')).lower() in ('1', 'true', 'on', 'yes')
+    return {'dict_id': dict_id, 'id_from': id_from, 'id_to': id_to,
+            'page': page, 'gray': gray, 'aid': aid}, None

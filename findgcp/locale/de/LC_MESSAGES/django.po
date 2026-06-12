@@ -230,3 +230,79 @@ msgstr ""
 #: params.py
 msgid "ignore must be in the range [0, 1)."
 msgstr "ignore muss im Bereich [0, 1) liegen."
+
+#: templates/settings.html — marker printing
+msgid "Print ArUco markers"
+msgstr "ArUco-Marker drucken"
+
+#: templates/settings.html (blocktrans)
+msgid "Generates a print-ready PDF, one marker per page, sized to the page with a one-module white quiet zone. The aiming aid sits on the marker center — the exact point Find-GCP reports — for total station or laser disto measurements. Rule of thumb for drone flights: marker side ≥ 40 × ground resolution (GSD). Print at 100% scale (no fit-to-page) and laminate matte, not glossy."
+msgstr "Erzeugt ein druckfertiges PDF, ein Marker pro Seite, an die Seitengröße angepasst mit einer weißen Ruhezone von einer Modulbreite. Die Zielhilfe liegt auf dem Markerzentrum — exakt dem Punkt, den Find-GCP meldet — für Messungen mit Totalstation oder Laser-Disto. Faustregel für Drohnenflüge: Markerseite ≥ 40 × Bodenauflösung (GSD). Mit 100 % Skalierung drucken (nicht „an Seite anpassen“) und matt laminieren, nicht glänzend."
+
+#: templates/settings.html
+msgid "Page size (DIN A)"
+msgstr "Seitengröße (DIN A)"
+
+#: templates/settings.html
+msgid "First marker id"
+msgstr "Erste Marker-ID"
+
+#: templates/settings.html
+msgid "Last marker id"
+msgstr "Letzte Marker-ID"
+
+#: templates/settings.html
+msgid "Center aiming aid"
+msgstr "Zielhilfe im Zentrum"
+
+#: templates/settings.html
+msgid "No aiming aid"
+msgstr "Keine Zielhilfe"
+
+#: templates/settings.html
+msgid "Red cross"
+msgstr "Rotes Kreuz"
+
+#: templates/settings.html
+msgid "Red cross with white halo"
+msgstr "Rotes Kreuz mit weißem Halo"
+
+#: templates/settings.html
+msgid "Red dot with white ring"
+msgstr "Roter Punkt mit weißem Ring"
+
+#: templates/settings.html
+msgid "Gray markers (less burn-in in strong sunlight)"
+msgstr "Graue Marker (weniger Überstrahlen bei starker Sonne)"
+
+#: templates/settings.html
+msgid "Generate marker PDF"
+msgstr "Marker-PDF erzeugen"
+
+#: params.py — marker printing (looked up at runtime via _(error) in plugin.py)
+msgid "Invalid marker id range."
+msgstr "Ungültiger Marker-ID-Bereich."
+
+#: params.py
+msgid "Marker id range too large (max 100 markers per PDF)."
+msgstr "Marker-ID-Bereich zu groß (max. 100 Marker pro PDF)."
+
+#: params.py / marker_pdf.py
+msgid "Marker id range exceeds the capacity of the selected dictionary."
+msgstr "Der Marker-ID-Bereich überschreitet die Kapazität des gewählten Dictionarys."
+
+#: params.py
+msgid "Unsupported page size (use A2-A6)."
+msgstr "Nicht unterstützte Seitengröße (A2–A6 verwenden)."
+
+#: params.py
+msgid "Unsupported center aiming aid."
+msgstr "Nicht unterstützte Zielhilfe."
+
+#: marker_pdf.py
+msgid "OpenCV with the ArUco module (cv2.aruco) is not available in the webapp. It is installed automatically when the plugin is enabled (after a webapp restart); see the plugin README."
+msgstr "OpenCV mit dem ArUco-Modul (cv2.aruco) ist in der Webapp nicht verfügbar. Es wird automatisch installiert, wenn das Plugin aktiviert ist (nach einem Webapp-Neustart); siehe Plugin-README."
+
+#: marker_pdf.py
+msgid "Marker self-check failed: a rendered page was not detectable. Try a larger page size or a different center aiming aid."
+msgstr "Marker-Selbsttest fehlgeschlagen: eine erzeugte Seite war nicht detektierbar. Größere Seitengröße oder andere Zielhilfe wählen."

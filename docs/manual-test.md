@@ -209,7 +209,32 @@ test, so check it here once.
 - [ ] **Unload cleanup:** start a run and close the tab mid-run; the scratch
       project is removed shortly after (keepalive DELETE on `pagehide`).
 
-## 9. Cleanup
+## 9. Print ArUco marker sheets (settings page)
+
+The **Find-GCP Settings** page generates print-ready marker PDFs. This runs in
+the `webapp` process (not the worker) and uses OpenCV + Pillow there.
+
+- [ ] On **Find-GCP Settings**, the **Print ArUco markers** section renders with
+      a non-empty **ArUco dictionary** dropdown (pre-selected to your saved
+      default) and all controls (page size, id range, aiming aid, gray).
+- [ ] On a German UI, the whole section is German (label *ArUco-Marker drucken*,
+      button *Marker-PDF erzeugen*). If it shows English, `webapp` is still
+      running the pre-upload catalog — `docker restart webapp`.
+- [ ] Generate a PDF (dict 1, ids 0–11, A4, red cross): the browser downloads
+      `aruco-markers-dict1-id0-11-a4-cross.pdf` with **12 pages**.
+- [ ] Each page: one centered marker, a red center cross, a small meta line
+      (`DICT_4X4_100 - 157 mm - top ^`) and a large bold number below it.
+- [ ] Re-detect roundtrip: the printed/exported marker is detectable — e.g.
+      render a page to PNG and run `cv2.aruco.detectMarkers`, or simply trust the
+      server-side self-check (an undetectable page is never embedded; it returns
+      *"Marker self-check failed…"* instead).
+- [ ] Capacity guard: dict **0** (DICT_4X4_50) with **last id 50** is rejected
+      with *"Marker id range exceeds the capacity of the selected dictionary."*
+- [ ] Range guard: **last id < first id**, or a range over **100**, is rejected.
+- [ ] Gray variant + *cross with halo* / *dot with ring* also produce a valid
+      PDF (self-check passes).
+
+## 10. Cleanup
 
 - [ ] Remove the test task/project if desired.
 - [ ] To uninstall: **Administration → Plugins → Find-GCP → Delete**.

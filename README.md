@@ -110,6 +110,34 @@ in one run): see [Single-pass](#single-pass-detect-before-processing) below.
 | ignore | `--ignore` → `perspectiveRemoveIgnoredMarginPerCell` | `0.33` | burnt-in protection for strong sunlight |
 | Color adjustment | `--adjust` | on | LUT correction against overexposure |
 
+### Print marker sheets
+
+The **Find-GCP Settings** page can generate print-ready ArUco marker PDFs
+(one marker per page) — so the markers you lay out in the field are guaranteed
+to match the dictionary the detector expects:
+
+- **Dictionary** — pre-selected from your saved default; all supported
+  dictionaries (0–20, 99) work. The id range is capacity-checked per
+  dictionary (max 100 pages per PDF).
+- **Page size** — DIN A6–A2. The marker is sized to the page with a one-module
+  white quiet zone (e.g. ~157 mm on A4 for a 4×4 dictionary). Rule of thumb:
+  marker side ≥ 40 × GSD of the planned flight.
+- **Gray variant** — prints gray instead of white module cells; less burn-in
+  under strong sunlight (pairs with `ignore 0.33` / color adjustment).
+- **Center aiming aid** — none, red cross, red cross with white halo, or red
+  dot with white ring. It marks the marker center, which is exactly the point
+  the detection reports, so a total station / laser disto target placed on it
+  measures the photogrammetric GCP with zero offset. The aids are deliberately
+  thin/small: red reads dark in grayscale, and an oversized mark on a white
+  module could flip a dictionary bit.
+
+Below the marker each page carries a small meta line (dictionary, printed
+size, `top ^` orientation) and a large, bold marker number readable from
+standing height with the sheet on the ground. Every page is verified with the
+ArUco detector before it is embedded in the PDF (self-check) — an undetectable
+sheet can never be produced. Print at **100% scale** (no fit-to-page), check
+the printed size with a ruler, and laminate **matte**, not glossy.
+
 #### Declare the coordinate CRS in the file (recommended)
 
 A wrong EPSG is a silent error: the codes are plausible numbers in the same
@@ -185,9 +213,10 @@ findgcp/                  # ← single root dir required by WebODM's plugin load
 ├── params.py             # Django-free parameter validation (unit-tested)
 ├── requirements.txt      # OpenCV for the worker (single-host auto-install)
 ├── gcp_detect.py         # ported ArUco detection — self-contained for the worker
+├── marker_pdf.py         # print-ready marker sheets (built-in PDF writer, self-check)
 ├── templates/
 │   ├── app.html          # standalone detection tool (drop images → download gcp_list)
-│   └── settings.html     # per-user default detection parameters
+│   └── settings.html     # per-user default detection parameters + marker printing
 ├── locale/de/…/django.po # German catalog (+ compiled .mo; en is the source)
 └── public/
     ├── load_buttons.js   # "Find-GCP task" dashboard button (single-pass)

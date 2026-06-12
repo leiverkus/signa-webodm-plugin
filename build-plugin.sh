@@ -46,7 +46,9 @@ fi
 
 # ---------- Build ----------
 mkdir -p "$DIST_DIR"
-rm -f "$ZIP_PATH"
+# Keep dist/ to a single artifact: drop any previously built plugin zips
+# (older versions included) so they don't pile up across releases.
+rm -f "$DIST_DIR"/findgcp-*.zip
 
 log "Packaging findgcp v$VERSION → dist/$ZIP_NAME"
 ( cd "$SCRIPT_DIR" && zip -r -q "$ZIP_PATH" findgcp \

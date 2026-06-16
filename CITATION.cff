@@ -31,12 +31,11 @@ keywords:
   - georeferencing
   - archaeology
   - reproducible research software
-# After archiving a release on Zenodo, add the concept DOI here, e.g.:
-# identifiers:
-#   - type: doi
-#     value: "10.5281/zenodo.XXXXXXX"
-#     description: "Concept DOI for all versions of Signa"
-# doi: "10.5281/zenodo.XXXXXXX"
+doi: "10.5281/zenodo.20715426"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.20715426"
+    description: "Concept DOI (resolves to all versions of Signa on Zenodo)"
 references:
   - type: article
     title: "Automatic Recognition of ArUco Codes in Land Surveying Tasks"

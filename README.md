@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/github/license/leiverkus/signa-webodm-plugin)](LICENSE)
 [![WebODM ≥ 2.9.5](https://img.shields.io/badge/WebODM-%E2%89%A5%202.9.5-1f6feb.svg)](https://github.com/WebODM/WebODM)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab.svg)](https://www.python.org/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20715426.svg)](https://doi.org/10.5281/zenodo.20715426)
 
 A [WebODM](https://github.com/WebODM/WebODM) plugin for **automatic ArUco ground
 control point detection**. It detects ArUco markers in a task's images, matches

@@ -1,0 +1,61 @@
+cff-version: 1.2.0
+message: >-
+  If you use Signa, please cite this software. Please also cite the upstream
+  Find-GCP paper (Siki & Takács 2021), whose detection logic Signa reuses.
+title: "Signa: automatic ArUco ground control point detection for WebODM"
+abstract: >-
+  Signa is a WebODM plugin for automatic ArUco ground-control-point (GCP)
+  detection. It detects ArUco markers in a photogrammetry task's images, matches
+  them against measured GCP coordinates, and produces an OpenDroneMap-compatible
+  gcp_list.txt for single-pass georeferencing of (archaeological) drone surveys —
+  server-side inside WebODM, with no command line. The detection logic is ported
+  from Find-GCP (gcp_find.py).
+type: software
+authors:
+  - family-names: Leiverkus
+    given-names: Patrick
+    email: patrick.leiverkus@uni-oldenburg.de
+    affiliation: "Carl von Ossietzky Universität Oldenburg"
+    orcid: "https://orcid.org/0009-0006-2308-8297"
+version: "1.4.0"
+date-released: "2026-06-16"
+license: MIT
+repository-code: "https://github.com/leiverkus/signa-webodm-plugin"
+url: "https://github.com/leiverkus/signa-webodm-plugin"
+keywords:
+  - WebODM
+  - OpenDroneMap
+  - ArUco
+  - ground control points
+  - photogrammetry
+  - georeferencing
+  - archaeology
+  - reproducible research software
+# After archiving a release on Zenodo, add the concept DOI here, e.g.:
+# identifiers:
+#   - type: doi
+#     value: "10.5281/zenodo.XXXXXXX"
+#     description: "Concept DOI for all versions of Signa"
+# doi: "10.5281/zenodo.XXXXXXX"
+references:
+  - type: article
+    title: "Automatic Recognition of ArUco Codes in Land Surveying Tasks"
+    authors:
+      - family-names: Siki
+        given-names: Zoltán
+      - family-names: Takács
+        given-names: Bence
+    journal: "Baltic Journal of Modern Computing"
+    year: 2021
+    volume: 9
+    issue: 1
+    start: 115
+    end: 125
+    doi: "10.22364/bjmc.2021.9.1.06"
+  - type: software
+    title: "Find-GCP"
+    authors:
+      - family-names: Siki
+        given-names: Zoltán
+    repository-code: "https://github.com/zsiki/Find-GCP"
+    notes: "Upstream tool; Signa ports its ArUco GCP detection logic (gcp_find.py)."

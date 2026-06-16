@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-06-16
+
+### Changed
+- **Rebranded the plugin from Find-GCP to Signa.** The plugin is now named
+  *Signa*; internal `FindGCP*` symbols were renamed to `Signa*`, and the
+  installable archive is now `signa-<version>.zip` (previously `findgcp-*`). The
+  ArUco detection logic is still ported from Find-GCP (`gcp_find.py`).
+
+### Added
+- `CITATION.cff` (Citation File Format 1.2.0) for machine-readable software
+  citation, listing the upstream Find-GCP paper (Siki & Takács 2021) and the
+  Find-GCP tool as references. Enables GitHub's "Cite this repository" and a
+  correct Zenodo archival record.
+
 ## [1.3.0] - 2026-06-12
 
 ### Added

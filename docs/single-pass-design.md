@@ -88,10 +88,8 @@ Behaviour:
   before committing, with an optional `--dry-run` that stops before commit.
 - Upload `gcp_list.txt`, commit.
 
-Relationship to the existing `standalone/signa-webodm.sh`: that script detects
-**locally** (needs local OpenCV/Find-GCP) and creates one task with images+GCP.
-This new path detects **server-side** (no local OpenCV; needs the plugin + a
-worker with `cv2`). We keep both and document when to use which.
+This path detects **server-side** (no local OpenCV; needs the plugin + a worker
+with `cv2`) and is the supported automation/orchestration flow.
 
 Deliverable: `scripts/signa-singlepass.py` (+ `--help`, no third-party deps
 beyond the stdlib + `requests` if acceptable, else `urllib`).

@@ -7,7 +7,8 @@ surfaces them to the client as JSON.
 
 # The single source of truth for the ArUco dictionaries the plugin offers, as
 # (value, label) pairs. Ids 0..20 are OpenCV's predefined dictionaries (verified
-# against opencv-contrib 4.10.0); 99 is Find-GCP's custom 3x3 (aruco.extendDictionary).
+# against opencv-contrib 4.10.0); 99 is a legacy custom 3x3 dictionary created
+# with OpenCV's extendDictionary API for existing Signa marker sheets.
 # The settings form, both UI dropdowns and the API validation all derive from
 # this list, so they can never drift apart.
 DICT_CHOICES = [
@@ -32,7 +33,7 @@ DICT_CHOICES = [
     ("18", "18 — DICT_APRILTAG_25h9"),
     ("19", "19 — DICT_APRILTAG_36h10"),
     ("20", "20 — DICT_APRILTAG_36h11"),
-    ("99", "99 — custom 3×3 (Find-GCP)"),
+    ("99", "99 — legacy custom 3×3"),
 ]
 
 # Accepted ids, derived from DICT_CHOICES so validation and UI stay in lockstep.
@@ -94,7 +95,7 @@ PAGE_SIZES_MM = {
 }
 
 # Center aiming aids (for putting a total station / laser disto target on the
-# exact point Find-GCP reports — the marker center). The labels live in the
+# exact point Signa reports: the marker center). The labels live in the
 # settings template as {% trans %} strings so this module stays Django-free.
 MARKER_AIDS = ('none', 'cross', 'cross_halo', 'dot_ring')
 
@@ -108,7 +109,7 @@ DICT_CAPACITY = {
     12: 50, 13: 100, 14: 250, 15: 1000,     # 7x7
     16: 1024,                               # ARUCO_ORIGINAL
     17: 30, 18: 35, 19: 2320, 20: 587,      # AprilTag 16h5/25h9/36h10/36h11
-    99: 32,                                 # Find-GCP custom 3x3
+    99: 32,                                 # legacy custom 3x3
 }
 
 # One page per marker; keeps a synchronous request (and the PDF) bounded.

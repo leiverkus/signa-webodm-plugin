@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/leiverkus/signa-webodm-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/leiverkus/signa-webodm-plugin/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/leiverkus/signa-webodm-plugin?sort=semver)](https://github.com/leiverkus/signa-webodm-plugin/releases)
-[![License: MIT](https://img.shields.io/github/license/leiverkus/signa-webodm-plugin)](LICENSE)
+[![License: AGPL v3](https://img.shields.io/github/license/leiverkus/signa-webodm-plugin)](LICENSE)
 [![WebODM ≥ 2.9.5](https://img.shields.io/badge/WebODM-%E2%89%A5%202.9.5-1f6feb.svg)](https://github.com/WebODM/WebODM)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776ab.svg)](https://www.python.org/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20715426.svg)](https://doi.org/10.5281/zenodo.20715426)
@@ -12,11 +12,10 @@ control point detection**. It detects ArUco markers in a task's images, matches
 them against your measured GCP coordinates and produces an ODM-compatible
 `gcp_list.txt` — directly inside WebODM, no command line required.
 
-The detection logic is ported from [Find-GCP](https://github.com/zsiki/Find-GCP)
-(`gcp_find.py`) and runs server-side in the WebODM worker.
-
-A standalone Bash CLI for the same workflow (run Find-GCP outside WebODM and
-optionally upload via the API) is kept under [`standalone/`](standalone/).
+The detection logic uses OpenCV's ArUco module and runs server-side in the
+WebODM worker. Headless/orchestrated runs can call the Signa API directly; see
+[`scripts/signa-singlepass.py`](scripts/signa-singlepass.py) for a complete
+client workflow.
 
 ## Install in WebODM
 
@@ -103,13 +102,13 @@ in one run): see [Single-pass](#single-pass-detect-before-processing) below.
 
 ### Parameters
 
-| Field | Maps to (Find-GCP) | Default | Notes |
-|-------|--------------------|---------|-------|
+| Field | Maps to (OpenCV/Signa) | Default | Notes |
+|-------|------------------------|---------|-------|
 | EPSG | `--epsg` | `28191` | target CRS of the coordinates; written as the `gcp_list.txt` header |
-| ArUco dictionary | `-d` | `1` (DICT_4X4_100) | `99` = custom 3×3 |
+| ArUco dictionary | dictionary id | `1` (DICT_4X4_100) | `99` = legacy custom 3×3 |
 | minrate | `--minrate` → `minMarkerPerimeterRate` | `0.01` | lower to detect smaller markers (enforced floor `0.005`) |
 | ignore | `--ignore` → `perspectiveRemoveIgnoredMarginPerCell` | `0.33` | burnt-in protection for strong sunlight |
-| Color adjustment | `--adjust` | on | LUT correction against overexposure |
+| Color adjustment | grayscale equalization | on | conservative contrast enhancement before detection |
 
 ### Print marker sheets
 
@@ -213,7 +212,7 @@ signa/                  # ← single root dir required by WebODM's plugin loader
 ├── api.py                # detect + check endpoints (DRF TaskView), auth-gated
 ├── params.py             # Django-free parameter validation (unit-tested)
 ├── requirements.txt      # OpenCV for the worker (single-host auto-install)
-├── gcp_detect.py         # ported ArUco detection — self-contained for the worker
+├── gcp_detect.py         # OpenCV ArUco detection — self-contained for the worker
 ├── marker_pdf.py         # print-ready marker sheets (built-in PDF writer, self-check)
 ├── templates/
 │   ├── app.html          # standalone detection tool (drop images → download gcp_list)
@@ -277,13 +276,6 @@ For the **live WebODM** path (plugin loader, worker `cv2`, permissions, UI) see
 [`docs/manual-test.md`](docs/manual-test.md) — a checklist that uses the
 synthetic fixture, so no drone flight is needed.
 
-## Standalone CLI (alternative)
-
-If you prefer to run detection outside WebODM, the original Bash pipeline is in
-[`standalone/signa-webodm.sh`](standalone/signa-webodm.sh) — it wraps
-Find-GCP (`gcp_find.py`), builds a sanity report and can prep/upload a
-WebODM-ready folder. Run `standalone/signa-webodm.sh --help` for details.
-
 ## Languages
 
 The plugin is available in **English** and **German** and follows WebODM's
@@ -307,12 +299,9 @@ See [CHANGELOG.md](CHANGELOG.md). The plugin follows
 
 ## License
 
-[MIT](LICENSE) © 2026 Patrick Leiverkus
+[GNU Affero General Public License v3.0 or later](LICENSE) © 2026 Patrick Leiverkus
 
 ## References
 
 - WebODM: <https://github.com/WebODM/WebODM>
-- Find-GCP: <https://github.com/zsiki/Find-GCP>
 - ArUco detector parameters: <https://docs.opencv.org/trunk/d5/dae/tutorial_aruco_detection.html>
-- Siki 2021, *Baltic Journal of Modern Computing*:
-  <https://www.bjmc.lu.lv/fileadmin/user_upload/lu_portal/projekti/bjmc/Contents/9_1_06_Siki.pdf>

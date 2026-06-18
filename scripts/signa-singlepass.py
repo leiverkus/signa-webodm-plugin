@@ -17,8 +17,8 @@ Needs:
   - WebODM >= 2.9.5 with the Signa plugin installed and enabled,
   - a worker that has OpenCV (cv2) — see docker/.
 
-Unlike standalone/signa-webodm.sh (which detects LOCALLY and needs local
-OpenCV/Find-GCP), this script runs detection on the server.
+This is the headless/orchestrator-friendly client path: detection runs on the
+server via the Signa plugin API.
 
 stdlib only — no pip install required.
 

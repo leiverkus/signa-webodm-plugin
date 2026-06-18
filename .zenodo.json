@@ -1,9 +1,9 @@
 {
   "upload_type": "software",
   "title": "Signa: automatic ArUco ground control point detection for WebODM",
-  "description": "Signa is a WebODM plugin for automatic ArUco ground-control-point (GCP) detection. It detects ArUco markers in a photogrammetry task's images, matches them against measured GCP coordinates, and produces an OpenDroneMap-compatible gcp_list.txt for single-pass georeferencing of (archaeological) drone surveys, server-side inside WebODM with no command line. The detection logic is ported from Find-GCP (gcp_find.py).",
+  "description": "Signa is a WebODM plugin for automatic ArUco ground-control-point (GCP) detection. It detects ArUco markers in a photogrammetry task's images, matches them against measured GCP coordinates, and produces an OpenDroneMap-compatible gcp_list.txt for single-pass georeferencing of (archaeological) drone surveys, server-side inside WebODM with no command line.",
   "access_right": "open",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "creators": [
     {
       "name": "Leiverkus, Patrick",
@@ -22,17 +22,6 @@
     "reproducible research software"
   ],
   "related_identifiers": [
-    {
-      "relation": "isDerivedFrom",
-      "identifier": "10.22364/bjmc.2021.9.1.06",
-      "scheme": "doi",
-      "resource_type": "publication-article"
-    },
-    {
-      "relation": "isDerivedFrom",
-      "identifier": "https://github.com/zsiki/Find-GCP",
-      "scheme": "url"
-    },
     {
       "relation": "isSupplementedBy",
       "identifier": "https://github.com/leiverkus/signa-webodm-plugin",

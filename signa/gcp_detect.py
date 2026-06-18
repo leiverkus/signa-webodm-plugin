@@ -1,9 +1,7 @@
 """
 Server-side ArUco ground control point detection.
 
-Ported from Find-GCP (https://github.com/zsiki/Find-GCP, gcp_find.py).
-
-IMPORTANT — execution model:
+IMPORTANT - execution model:
 WebODM's run_function_async() serializes ONLY the source text of detect_gcps
 (via inspect.getsource) and exec()'s it in an EMPTY namespace in the worker
 (see app/plugins/worker.py -> eval_async). Therefore detect_gcps must be fully
@@ -30,21 +28,6 @@ def detect_gcps(image_paths, coords_text, epsg, dict_id=1, minrate=0.01,
 
     import numpy as np
 
-    # OpenCV (with the ArUco contrib module) must be importable in this
-    # (Celery worker) process. Two supported ways, tried in order:
-    #   1. cv2+aruco is in the worker image — the robust path (see docker/).
-    #   2. self-contained single-host: WebODM installs the plugin's
-    #      requirements.txt into <MEDIA_ROOT>/plugins/signa/site-packages, on
-    #      the media volume shared with this worker. We add that to sys.path and
-    #      retry. numpy is already loaded by WebODM, so cv2 reuses it.
-    # We require BOTH cv2 and cv2.aruco, so a base opencv-python (no aruco)
-    # cannot satisfy the check and silently skip detection — the `from cv2
-    # import aruco` lives inside the guarded import, not after it. If everything
-    # fails (no cv2 at all, a cv2 without aruco that we can't replace, or a
-    # distributed worker without the shared volume), we return a clear error
-    # pointing to the durable docker/ image rather than crashing. We do NOT
-    # purge/reimport a cached cv2: OpenCV's bootstrap is not re-entrant, so a
-    # runtime swap is fragile — fixing the worker image is the right remedy.
     def _load_cv2():
         import cv2 as _cv2
         from cv2 import aruco as _aruco
@@ -73,10 +56,6 @@ def detect_gcps(image_paths, coords_text, epsg, dict_id=1, minrate=0.01,
                              "setup, add opencv-contrib to the worker image (see "
                              "the plugin's docker/ directory) or run: docker exec "
                              "worker pip install opencv-contrib-python-headless"}
-
-    # --- Find-GCP color LUT for --adjust (gcp_find.py LUT_IN / LUT_OUT) ---
-    LUT_IN = [0, 158, 216, 255]
-    LUT_OUT = [0, 22, 80, 176]
 
     def parse_coords(text):
         """id easting northing elevation -> {id: (e, n, z)}.
@@ -132,23 +111,48 @@ def detect_gcps(image_paths, coords_text, epsg, dict_id=1, minrate=0.01,
                 found.add(int(m.group(1)))
         return sorted(found)
 
-    def build_dictionary(dict_id):
-        if int(dict_id) == 99:
+    def make_dictionary(dictionary_id):
+        dictionary_id = int(dictionary_id)
+        if dictionary_id == 99:
             if hasattr(aruco, 'extendDictionary'):
                 return aruco.extendDictionary(32, 3)
             return aruco.Dictionary_create(32, 3)
         if hasattr(aruco, 'getPredefinedDictionary'):
-            return aruco.getPredefinedDictionary(int(dict_id))
-        return aruco.Dictionary_get(int(dict_id))
+            return aruco.getPredefinedDictionary(dictionary_id)
+        return aruco.Dictionary_get(dictionary_id)
 
-    def build_params(minrate, ignore):
+    def make_parameters(minrate_value, ignore_value):
         if hasattr(aruco, 'DetectorParameters'):
             params = aruco.DetectorParameters()
         else:
             params = aruco.DetectorParameters_create()
-        params.minMarkerPerimeterRate = float(minrate)
-        params.perspectiveRemoveIgnoredMarginPerCell = float(ignore)
+        params.minMarkerPerimeterRate = float(minrate_value)
+        params.perspectiveRemoveIgnoredMarginPerCell = float(ignore_value)
         return params
+
+    def make_detector(dictionary, params):
+        if hasattr(aruco, 'ArucoDetector'):
+            detector = aruco.ArucoDetector(dictionary, params)
+            return lambda gray: detector.detectMarkers(gray)
+        return lambda gray: aruco.detectMarkers(gray, dictionary, parameters=params)
+
+    def prepare_image(frame, enhance_contrast):
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        if not enhance_contrast:
+            return gray
+        # Local to Signa: a conservative grayscale equalization pass. It avoids
+        # project-specific tone curves while helping with low-contrast marker
+        # cells in flat lighting.
+        if hasattr(cv2, 'equalizeHist'):
+            return cv2.equalizeHist(gray)
+        return gray
+
+    def corner_center(corner_set):
+        pts = np.asarray(corner_set, dtype=float).reshape(-1, 2)
+        return (
+            int(round(float(np.mean(pts[:, 0])))),
+            int(round(float(np.mean(pts[:, 1])))),
+        )
 
     # --- parse coordinates ---
     coords, skipped_lines, duplicate_ids = parse_coords(coords_text)
@@ -179,13 +183,11 @@ def detect_gcps(image_paths, coords_text, epsg, dict_id=1, minrate=0.01,
 
     # --- detector setup ---
     try:
-        adict = build_dictionary(dict_id)
+        dictionary = make_dictionary(dict_id)
     except Exception as e:  # noqa: BLE001 - surfaced to the UI
         return {'error': 'Invalid ArUco dictionary {}: {}'.format(dict_id, e)}
 
-    params = build_params(minrate, ignore)
-    detector = aruco.ArucoDetector(adict, params) if hasattr(aruco, 'ArucoDetector') else None
-    lut = np.interp(np.arange(0, 256), LUT_IN, LUT_OUT).astype(np.uint8)
+    detect_markers = make_detector(dictionary, make_parameters(minrate, ignore))
 
     # --- detect ---
     gcps = []          # (pixel_x, pixel_y, image_basename, marker_id)
@@ -196,15 +198,8 @@ def detect_gcps(image_paths, coords_text, epsg, dict_id=1, minrate=0.01,
         if frame is None:
             unreadable += 1
             continue
-        if adjust:
-            gray = cv2.cvtColor(cv2.LUT(frame, lut), cv2.COLOR_BGR2GRAY)
-        else:
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        if detector is not None:
-            corners, ids, _ = detector.detectMarkers(gray)
-        else:
-            corners, ids, _ = aruco.detectMarkers(gray, adict, parameters=params)
+        gray = prepare_image(frame, adjust)
+        corners, ids, _ = detect_markers(gray)
 
         if ids is None:
             continue
@@ -212,8 +207,7 @@ def detect_gcps(image_paths, coords_text, epsg, dict_id=1, minrate=0.01,
         base = os.path.basename(path)
         for i in range(len(ids)):
             marker_id = int(ids[i][0])
-            x = int(round(float(np.average(corners[i][0][:, 0]))))
-            y = int(round(float(np.average(corners[i][0][:, 1]))))
+            x, y = corner_center(corners[i])
             gcps.append((x, y, base, marker_id))
             found[marker_id] = found.get(marker_id, 0) + 1
 

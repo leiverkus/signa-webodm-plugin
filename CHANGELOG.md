@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-06-18
+
+### Changed
+- Rewrote the server-side ArUco detector as a Signa/OpenCV implementation and
+  removed the Find-GCP-derived tone-curve path and provenance metadata. The
+  worker-facing API and `gcp_list.txt` output format are unchanged.
+- Renamed dictionary `99` in the UI/docs from "custom 3x3 (Find-GCP)" to
+  "legacy custom 3x3"; the numeric id and OpenCV-generated dictionary remain
+  available for existing marker sheets.
+
+### Removed
+- Removed the legacy local `standalone/signa-webodm.sh` wrapper. Automation now
+  uses the server-side Signa API, with `scripts/signa-singlepass.py` as the
+  headless/orchestrator reference client.
+
 ## [1.4.0] - 2026-06-16
 
 ### Changed
@@ -369,7 +384,10 @@ Initial WebODM plugin.
   Actions workflow to publish a release on a `v*` tag.
 - Standalone Bash CLI retained under `standalone/`.
 
-[Unreleased]: https://github.com/leiverkus/signa-webodm-plugin/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/leiverkus/signa-webodm-plugin/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/leiverkus/signa-webodm-plugin/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/leiverkus/signa-webodm-plugin/compare/v1.3.0...v1.4.0
+[1.3.0]: https://github.com/leiverkus/signa-webodm-plugin/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/leiverkus/signa-webodm-plugin/compare/v1.1.2...v1.2.0
 [1.1.2]: https://github.com/leiverkus/signa-webodm-plugin/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/leiverkus/signa-webodm-plugin/compare/v1.1.0...v1.1.1

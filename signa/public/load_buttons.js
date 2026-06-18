@@ -20,7 +20,7 @@
     // read inside the button callback, which runs later at trigger time.
 
     // ArUco dictionaries offered in the dialog — a mirror of signa/params.py
-    // DICT_CHOICES (ids 0..20 = OpenCV predefined, 99 = Find-GCP custom 3x3).
+    // DICT_CHOICES (ids 0..20 = OpenCV predefined, 99 = legacy custom 3x3).
     // This page is a static script (no Django rendering), so the list is
     // duplicated here; keep it in sync with params.py if that ever changes.
     var DICT_CHOICES = [
@@ -32,7 +32,7 @@
         ["15", "15 — DICT_7X7_1000"], ["16", "16 — DICT_ARUCO_ORIGINAL"],
         ["17", "17 — DICT_APRILTAG_16h5"], ["18", "18 — DICT_APRILTAG_25h9"],
         ["19", "19 — DICT_APRILTAG_36h10"], ["20", "20 — DICT_APRILTAG_36h11"],
-        ["99", "99 — custom 3×3 (Find-GCP)"]
+        ["99", "99 — legacy custom 3×3"]
     ];
     function dictOptions(selected) {
         return DICT_CHOICES.map(function (d) {

@@ -236,8 +236,8 @@ msgid "Print ArUco markers"
 msgstr "ArUco-Marker drucken"
 
 #: templates/settings.html (blocktrans)
-msgid "Generates a print-ready PDF, one marker per page, sized to the page with a one-module white quiet zone. The aiming aid sits on the marker center — the exact point Signa reports — for total station or laser disto measurements. Rule of thumb for drone flights: marker side ≥ 40 × ground resolution (GSD). Print at 100% scale (no fit-to-page) and laminate matte, not glossy."
-msgstr "Erzeugt ein druckfertiges PDF, ein Marker pro Seite, an die Seitengröße angepasst mit einer weißen Ruhezone von einer Modulbreite. Die Zielhilfe liegt auf dem Markerzentrum — exakt dem Punkt, den Signa meldet — für Messungen mit Totalstation oder Laser-Disto. Faustregel für Drohnenflüge: Markerseite ≥ 40 × Bodenauflösung (GSD). Mit 100 % Skalierung drucken (nicht „an Seite anpassen“) und matt laminieren, nicht glänzend."
+msgid "Generates a print-ready PDF, one marker per page, sized to the page with a one-module white quiet zone. The aiming aid sits on the marker center — the exact point Signa reports — for total station or laser disto measurements. Rule of thumb for drone flights: marker side ≥ 40 × ground resolution (GSD). Print at 1:1 scale (no fit-to-page) and laminate matte, not glossy."
+msgstr "Erzeugt ein druckfertiges PDF, ein Marker pro Seite, an die Seitengröße angepasst mit einer weißen Ruhezone von einer Modulbreite. Die Zielhilfe liegt auf dem Markerzentrum — exakt dem Punkt, den Signa meldet — für Messungen mit Totalstation oder Laser-Disto. Faustregel für Drohnenflüge: Markerseite ≥ 40 × Bodenauflösung (GSD). Im Maßstab 1:1 drucken (nicht „an Seite anpassen“) und matt laminieren, nicht glänzend."
 
 #: templates/settings.html
 msgid "Page size (DIN A)"

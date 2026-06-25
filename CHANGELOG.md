@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-06-25
+
+### Fixed
+- The marker-print help paragraph on the settings page rendered in English
+  although it was in the catalog. Django's `{% blocktranslate %}` runs
+  `%`-interpolation on the message, and the literal `%` in "100% scale" made the
+  lookup/interpolation fall back to the English source. Reworded to "1:1 scale"
+  (no literal `%`). Verified by rendering every template `blocktrans` with German
+  active. (Same fix as Mensura 0.5.1.)
+
 ## [1.6.1] - 2026-06-25
 
 ### Fixed

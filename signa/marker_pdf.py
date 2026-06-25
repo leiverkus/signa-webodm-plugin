@@ -20,6 +20,8 @@ import os
 import sys
 import zlib
 
+from signa_core import load_aruco, make_dictionary
+
 try:
     from .params import PAGE_SIZES_MM, DICT_CHOICES
 except ImportError:
@@ -67,14 +69,13 @@ _ERR_SELF_CHECK = ('Marker self-check failed: a rendered page was not detectable
 
 
 def _load_cv2():
-    """Import cv2 + aruco, retrying with the plugin's site-packages dir."""
-    def _import():
-        import cv2 as _cv2
-        from cv2 import aruco as _aruco
-        return _cv2, _aruco
+    """cv2 + aruco via signa-core, retrying with the plugin's site-packages dir.
 
+    The site-packages fallback covers WebODM's per-plugin install layout where
+    OpenCV is not on the default path; the actual import lives in signa-core.
+    """
     try:
-        return _import()
+        return load_aruco()
     except ImportError:
         site_packages = []
         try:
@@ -87,19 +88,9 @@ def _load_cv2():
             if os.path.isdir(sp) and sp not in sys.path:
                 sys.path.insert(0, sp)
         try:
-            return _import()
+            return load_aruco()
         except ImportError:
             return None, None
-
-
-def _build_dictionary(aruco, dict_id):
-    if int(dict_id) == 99:
-        if hasattr(aruco, 'extendDictionary'):
-            return aruco.extendDictionary(32, 3)
-        return aruco.Dictionary_create(32, 3)
-    if hasattr(aruco, 'getPredefinedDictionary'):
-        return aruco.getPredefinedDictionary(int(dict_id))
-    return aruco.Dictionary_get(int(dict_id))
 
 
 def _px(mm):
@@ -291,7 +282,7 @@ def build_marker_pdf(dict_id, id_from, id_to, page='a4', gray=False, aid='cross'
     if cv2 is None:
         return None, _ERR_NO_CV2
 
-    adict = _build_dictionary(aruco, dict_id)
+    adict = make_dictionary(dict_id, aruco)
     if id_to >= int(adict.bytesList.shape[0]):
         return None, _ERR_CAPACITY
 

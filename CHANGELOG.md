@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `signa-core/` — reusable, GUI-free ArUco detection core (MIT), shared with
+  Mensura. The repo is now split-licensed: core MIT, WebODM plugin AGPL-3.0.
+
+### Changed
+- The plugin's non-worker code consumes `signa-core` instead of duplicating it:
+  `params.py` re-exports `DICT_CHOICES`/`VALID_DICTS` from `signa_core`, and
+  `marker_pdf.py` uses `signa_core.make_dictionary` / `load_aruco` (dropped the
+  duplicated `_build_dictionary`/import shims). Adds a `signa-core` runtime
+  dependency (see `signa/requirements.txt`). The self-contained worker detector
+  (`gcp_detect.py`) is unchanged — it keeps its inlined copy by necessity.
+
 ## [1.4.1] - 2026-06-18
 
 ### Changed

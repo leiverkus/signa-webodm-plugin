@@ -5,39 +5,12 @@ without a running WebODM. Returns plain English error strings; the API view
 surfaces them to the client as JSON.
 """
 
-# The single source of truth for the ArUco dictionaries the plugin offers, as
-# (value, label) pairs. Ids 0..20 are OpenCV's predefined dictionaries (verified
-# against opencv-contrib 4.10.0); 99 is a legacy custom 3x3 dictionary created
-# with OpenCV's extendDictionary API for existing Signa marker sheets.
-# The settings form, both UI dropdowns and the API validation all derive from
-# this list, so they can never drift apart.
-DICT_CHOICES = [
-    ("0", "0 — DICT_4X4_50"),
-    ("1", "1 — DICT_4X4_100"),
-    ("2", "2 — DICT_4X4_250"),
-    ("3", "3 — DICT_4X4_1000"),
-    ("4", "4 — DICT_5X5_50"),
-    ("5", "5 — DICT_5X5_100"),
-    ("6", "6 — DICT_5X5_250"),
-    ("7", "7 — DICT_5X5_1000"),
-    ("8", "8 — DICT_6X6_50"),
-    ("9", "9 — DICT_6X6_100"),
-    ("10", "10 — DICT_6X6_250"),
-    ("11", "11 — DICT_6X6_1000"),
-    ("12", "12 — DICT_7X7_50"),
-    ("13", "13 — DICT_7X7_100"),
-    ("14", "14 — DICT_7X7_250"),
-    ("15", "15 — DICT_7X7_1000"),
-    ("16", "16 — DICT_ARUCO_ORIGINAL"),
-    ("17", "17 — DICT_APRILTAG_16h5"),
-    ("18", "18 — DICT_APRILTAG_25h9"),
-    ("19", "19 — DICT_APRILTAG_36h10"),
-    ("20", "20 — DICT_APRILTAG_36h11"),
-    ("99", "99 — legacy custom 3×3"),
-]
-
-# Accepted ids, derived from DICT_CHOICES so validation and UI stay in lockstep.
-VALID_DICTS = {int(value) for value, _label in DICT_CHOICES}
+# The ArUco dictionaries the plugin offers come from signa-core — the single
+# source of truth shared with the detection layer and other consumers (e.g.
+# Mensura). Re-exported here so the settings form, UI dropdowns and API
+# validation can never drift from the detector. signa-core has no Django and no
+# cv2 import at module level, so params.py stays Django-free and cv2-free.
+from signa_core import DICT_CHOICES, VALID_DICTS  # noqa: F401  (re-exported)
 
 # Hard floor for minrate. The UI/docs say "never below 0.005"; below it the
 # detector accepts tiny perimeters and produces a flood of false positives, so

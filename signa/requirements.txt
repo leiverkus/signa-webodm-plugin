@@ -11,3 +11,10 @@
 # without the shared volume — use the docker/ worker image there (the detection
 # error message points to it).
 opencv-contrib-python-headless==4.10.0.84
+
+# Shared, GUI-free ArUco detection core (single source of truth for the
+# dictionaries and the detector, shared with Mensura). Lives in this repo under
+# ../signa-core. Until it is published to PyPI, install it into the plugin's
+# site-packages alongside this file (or build the worker image with it); the
+# plugin imports `signa_core` at load time.
+signa-core>=0.1.0

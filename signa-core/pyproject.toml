@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "signa-core"
+version = "0.1.0"
+description = "Reusable, GUI-free ArUco marker detection core for the Signa/Evidentia pipeline (OpenCV)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Patrick Leiverkus", email = "leiverkus@gmail.com" },
+]
+keywords = ["aruco", "opencv", "marker-detection", "photogrammetry", "archaeology", "evidentia"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = [
+    "numpy>=1.24",
+    "opencv-contrib-python-headless>=4.7",
+]
+
+[project.urls]
+Repository = "https://github.com/leiverkus/signa-webodm-plugin"
+
+[tool.hatch.build.targets.wheel]
+packages = ["signa_core"]

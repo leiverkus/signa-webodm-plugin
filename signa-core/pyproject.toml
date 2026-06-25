@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "signa-core"
-version = "0.2.2"
+version = "0.3.0"
 description = "Reusable, GUI-free ArUco marker detection + print-ready marker-sheet rendering for the Signa/Evidentia pipeline (OpenCV)."
 readme = "README.md"
 # 3.9 so it installs inside WebODM (its webapp/worker run Python 3.9); the code

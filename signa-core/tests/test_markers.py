@@ -78,3 +78,30 @@ def test_pages_to_pdf_structure():
     assert pdf.startswith(b"%PDF-1.4")
     assert pdf.rstrip().endswith(b"%%EOF")
     assert b"/Count 2" in pdf
+
+
+def test_sheet_layout_corners():
+    w, h = markers.PAGE_SIZES_MM["a4"]      # 210 x 297
+    lay = markers.sheet_layout("a4", 30, base_id=0, margin_mm=15)
+    assert set(lay) == {0, 1, 2, 3}
+    assert lay[0] == (15, 15)                       # TL
+    assert lay[1] == (w - 15 - 30, 15)              # TR
+    assert lay[2] == (15, h - 15 - 30)              # BL
+    assert lay[3] == (w - 15 - 30, h - 15 - 30)     # BR
+    # base_id offsets the ids
+    assert set(markers.sheet_layout("a4", 30, base_id=10)) == {10, 11, 12, 13}
+
+
+@cv2_required
+def test_compose_sheet_page_all_markers_detect():
+    cv2, aruco = load_aruco()
+    adict = make_dictionary(1, aruco)          # DICT_4X4_100
+    lay = markers.sheet_layout("a4", 40, base_id=0, margin_mm=15)
+    page = markers.compose_sheet_page(cv2, aruco, adict, lay, page_key="a4",
+                                      marker_side_px=markers.mm_to_px(40),
+                                      gray=False, aid="cross",
+                                      caption="DICT_4X4_100 - 40 mm - ids 0-3")
+    detector = cv2.aruco.ArucoDetector(adict, cv2.aruco.DetectorParameters())
+    _c, ids, _r = detector.detectMarkers(cv2.cvtColor(page, cv2.COLOR_BGR2GRAY))
+    found = set() if ids is None else {int(i) for i in ids.ravel()}
+    assert found == {0, 1, 2, 3}, found

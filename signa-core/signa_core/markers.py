@@ -235,6 +235,81 @@ def compose_page(cv2, aruco, adict, marker_id, *, page_key, marker_side_px,
                        id_height_mm=id_height_mm, meta_mm=meta_mm)
 
 
+def sheet_layout(page_key, marker_mm, base_id=0, margin_mm=15):
+    """4-marker scale-sheet layout: the top-left ``(x_mm, y_mm)`` of each marker,
+    near the page corners with a ``margin_mm`` inset. The **single source of
+    truth** shared by the printer (where to place the markers) and the scaler
+    (their known sheet coordinates) so the two can never drift.
+
+    IDs ``base_id .. base_id+3`` map to TL, TR, BL, BR. Origin is the page
+    top-left, x to the right, y downward (mm).
+    """
+    w, h = PAGE_SIZES_MM[page_key]
+    s, m = float(marker_mm), float(margin_mm)
+    return {
+        base_id + 0: (m, m),                  # top-left
+        base_id + 1: (w - m - s, m),          # top-right
+        base_id + 2: (m, h - m - s),          # bottom-left
+        base_id + 3: (w - m - s, h - m - s),  # bottom-right
+    }
+
+
+def draw_caption(np, cv2, page, text, page_w, page_h, height_mm=4, margin_mm=6):
+    """Stamp a small centered caption near the bottom of the page (Pillow primary,
+    OpenCV/Hershey fallback). Used to label the scale-sheet's config."""
+    avail_w = page_w - 2 * mm_to_px(10)
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        (w1, h1), _ = cv2.getTextSize(text, font, 1.0, 2)
+        sc = min(mm_to_px(height_mm) / max(h1, 1), avail_w / max(w1, 1))
+        th = max(1, int(round(2 * sc)))
+        (w, h), _ = cv2.getTextSize(text, font, sc, th)
+        cv2.putText(page, text, ((page_w - w) // 2, page_h - mm_to_px(margin_mm)),
+                    font, sc, (0, 0, 0), th, cv2.LINE_AA)
+        return page
+    img = Image.fromarray(page[:, :, ::-1])
+    draw = ImageDraw.Draw(img)
+    size = mm_to_px(height_mm)
+    while size > mm_to_px(1.5) and draw.textlength(text, font=ImageFont.load_default(size=size)) > avail_w:
+        size -= max(1, size // 12)
+    font = ImageFont.load_default(size=max(size, mm_to_px(1.5)))
+    w = draw.textlength(text, font=font)
+    top = page_h - mm_to_px(margin_mm) - (font.getbbox(text)[3] - font.getbbox(text)[1])
+    draw.text(((page_w - w) / 2, top), text, fill=0, font=font)
+    return np.asarray(img)[:, :, ::-1].copy()
+
+
+def compose_sheet_page(cv2, aruco, adict, layout, *, page_key, marker_side_px,
+                       gray, aid, caption="", caption_mm=4):
+    """Assemble a control-sheet page: several markers placed at known sheet
+    positions (see :func:`sheet_layout`). ``layout`` maps ``marker_id -> (x_mm,
+    y_mm)`` (each marker's top-left). The object is photographed in the middle;
+    the markers' fixed spacing is the scale reference. Returns a BGR page (feed to
+    ``compress_page`` + ``pages_to_pdf``)."""
+    import numpy as np
+
+    white = GRAY if gray else 255
+    page_w_mm, page_h_mm = PAGE_SIZES_MM[page_key]
+    page_w, page_h = mm_to_px(page_w_mm), mm_to_px(page_h_mm)
+    side = int(marker_side_px)
+
+    canvas = np.full((page_h, page_w), np.uint8(white))
+    placed = []
+    for mid, (x_mm, y_mm) in layout.items():
+        marker = render_marker_raster(adict, mid, side, white=white, aruco=aruco)
+        x, y = mm_to_px(x_mm), mm_to_px(y_mm)
+        canvas[y:y + side, x:x + side] = marker
+        placed.append((x, y))
+    page = cv2.cvtColor(canvas, cv2.COLOR_GRAY2BGR)
+    for (x, y) in placed:
+        draw_aiming_aid(cv2, page, x + side // 2, y + side // 2, aid, white)
+    if caption:
+        page = draw_caption(np, cv2, page, caption, page_w, page_h, height_mm=caption_mm)
+    return page
+
+
 def pages_to_pdf(pages, page_mm):
     """Minimal PDF writer: one Flate-compressed RGB image per page.
 

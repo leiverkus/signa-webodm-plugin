@@ -21,15 +21,17 @@ from .markers import (
     MAX_MARKER_PAGES,
     PAGE_SIZES_MM,
     compose_page,
+    compose_sheet_page,
     compress_page,
     is_detectable,
     marker_capacity,
     mm_to_px,
     pages_to_pdf,
     render_marker_raster,
+    sheet_layout,
 )
 
-__version__ = "0.2.2"
+__version__ = "0.3.0"
 
 __all__ = [
     "detect_markers",
@@ -52,6 +54,8 @@ __all__ = [
     "marker_capacity",
     "render_marker_raster",
     "compose_page",
+    "compose_sheet_page",
+    "sheet_layout",
     "compress_page",
     "is_detectable",
     "pages_to_pdf",

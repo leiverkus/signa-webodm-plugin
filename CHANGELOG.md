@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-06-25
+
 ### Added
 - `signa-core/` — reusable, GUI-free ArUco detection core (MIT), shared with
   Mensura. The repo is now split-licensed: core MIT, WebODM plugin AGPL-3.0.
@@ -18,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   duplicated `_build_dictionary`/import shims). Adds a `signa-core` runtime
   dependency (see `signa/requirements.txt`). The self-contained worker detector
   (`gcp_detect.py`) is unchanged — it keeps its inlined copy by necessity.
+- CI: the test job installs `signa-core` (editable) so the plugin's
+  `params.py`/`marker_pdf.py` imports resolve, and the dead `bash -n` check for
+  the `standalone/` wrapper (removed in 1.4.1) was dropped (workflow-only).
 
 ## [1.4.1] - 2026-06-18
 
@@ -396,7 +401,8 @@ Initial WebODM plugin.
   Actions workflow to publish a release on a `v*` tag.
 - Standalone Bash CLI retained under `standalone/`.
 
-[Unreleased]: https://github.com/leiverkus/signa/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/leiverkus/signa/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/leiverkus/signa/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/leiverkus/signa/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/leiverkus/signa/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/leiverkus/signa/compare/v1.2.0...v1.3.0

@@ -29,7 +29,7 @@ from .markers import (
     render_marker_raster,
 )
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 __all__ = [
     "detect_markers",

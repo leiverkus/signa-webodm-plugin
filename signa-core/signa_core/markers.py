@@ -117,7 +117,8 @@ def draw_aiming_aid(cv2, page, cx, cy, aid, white):
         cv2.circle(page, (cx, cy), mm_to_px(DOT_RADIUS_MM), RED, -1)
 
 
-def _draw_labels_pil(np, page, x, y, side, page_w, page_h, meta, big):
+def _draw_labels_pil(np, page, x, y, side, page_w, page_h, meta, big,
+                     id_height_mm=ID_HEIGHT_MM, meta_mm=6):
     """Draw the labels with Pillow (DejaVu Sans). Returns the new BGR array, or
     None if Pillow is unavailable (caller falls back to Hershey)."""
     try:
@@ -137,7 +138,7 @@ def _draw_labels_pil(np, page, x, y, side, page_w, page_h, meta, big):
             size -= max(1, size // 12)
         return ImageFont.load_default(size=min_size)
 
-    meta_font = fit(meta, mm_to_px(6))
+    meta_font = fit(meta, mm_to_px(meta_mm))
     mw = draw.textlength(meta, font=meta_font)
     mtop, mbot = meta_font.getbbox(meta)[1], meta_font.getbbox(meta)[3]
     meta_y = y + side + mm_to_px(5)
@@ -148,7 +149,7 @@ def _draw_labels_pil(np, page, x, y, side, page_w, page_h, meta, big):
     big_y = meta_y + (mbot - mtop) + mm_to_px(6)
     stroke = mm_to_px(0.8)
     space = page_h - big_y - mm_to_px(6)  # bottom margin
-    big_font = fit(big, min(mm_to_px(ID_HEIGHT_MM), max(mm_to_px(8), space)), stroke)
+    big_font = fit(big, min(mm_to_px(id_height_mm), max(mm_to_px(min(8, id_height_mm)), space)), stroke)
     bw = draw.textlength(big, font=big_font) + 2 * stroke
     draw.text(((page_w - bw) / 2 + stroke, big_y), big, fill=0, font=big_font,
               stroke_width=stroke, stroke_fill=0)
@@ -156,7 +157,8 @@ def _draw_labels_pil(np, page, x, y, side, page_w, page_h, meta, big):
     return np.asarray(img)[:, :, ::-1].copy()  # RGB -> BGR
 
 
-def _draw_labels_cv2(cv2, page, x, y, side, page_w, page_h, meta, big):
+def _draw_labels_cv2(cv2, page, x, y, side, page_w, page_h, meta, big,
+                     id_height_mm=ID_HEIGHT_MM):
     """Hershey fallback (used only when Pillow is unavailable)."""
     font = cv2.FONT_HERSHEY_SIMPLEX
     avail_w = page_w - 2 * mm_to_px(10)
@@ -171,7 +173,7 @@ def _draw_labels_cv2(cv2, page, x, y, side, page_w, page_h, meta, big):
 
     (bw1, bh1), _ = cv2.getTextSize(big, font, 1.0, 3)
     space = page_h - meta_baseline - mm_to_px(5 + 6)
-    big_scale = min(mm_to_px(ID_HEIGHT_MM), max(mm_to_px(8), space)) / max(bh1, 1)
+    big_scale = min(mm_to_px(id_height_mm), max(mm_to_px(min(8, id_height_mm)), space)) / max(bh1, 1)
     big_scale = min(big_scale, avail_w / max(bw1, 1))
     big_th = max(3, int(round(4 * big_scale)))
     (bw, bh), _ = cv2.getTextSize(big, font, big_scale, big_th)
@@ -179,11 +181,18 @@ def _draw_labels_cv2(cv2, page, x, y, side, page_w, page_h, meta, big):
                 font, big_scale, (0, 0, 0), big_th, cv2.LINE_AA)
 
 
-def draw_labels(np, cv2, page, x, y, side, page_w, page_h, meta, big):
-    """Draw the meta line + big id number; returns the resulting BGR page."""
-    drawn = _draw_labels_pil(np, page, x, y, side, page_w, page_h, meta, big)
+def draw_labels(np, cv2, page, x, y, side, page_w, page_h, meta, big,
+                id_height_mm=ID_HEIGHT_MM, meta_mm=6):
+    """Draw the meta line + big id number; returns the resulting BGR page.
+
+    ``id_height_mm`` caps the big id-number height and ``meta_mm`` the meta-line
+    text height — Signa keeps the large defaults (readable from standing height),
+    Mensura passes small values (close-range, on-the-bench objects)."""
+    drawn = _draw_labels_pil(np, page, x, y, side, page_w, page_h, meta, big,
+                             id_height_mm=id_height_mm, meta_mm=meta_mm)
     if drawn is None:
-        _draw_labels_cv2(cv2, page, x, y, side, page_w, page_h, meta, big)
+        _draw_labels_cv2(cv2, page, x, y, side, page_w, page_h, meta, big,
+                         id_height_mm=id_height_mm)
         return page
     return drawn
 
@@ -199,11 +208,13 @@ def is_detectable(cv2, aruco, adict, page, marker_id):
 
 
 def compose_page(cv2, aruco, adict, marker_id, *, page_key, marker_side_px,
-                 gray, aid, meta, big):
+                 gray, aid, meta, big, id_height_mm=ID_HEIGHT_MM, meta_mm=6):
     """Assemble one portrait BGR page at :data:`DPI`.
 
     The caller decides ``marker_side_px`` (fit-to-page or exact-mm) and supplies
     the ``meta`` line and ``big`` number text; everything else is generic.
+    ``id_height_mm``/``meta_mm`` cap the label sizes (large defaults for Signa's
+    aerial sheets; pass small values for close-range Mensura markers).
     """
     import numpy as np
 
@@ -220,7 +231,8 @@ def compose_page(cv2, aruco, adict, marker_id, *, page_key, marker_side_px,
     page = cv2.cvtColor(canvas, cv2.COLOR_GRAY2BGR)
 
     draw_aiming_aid(cv2, page, x + side // 2, y + side // 2, aid, white)
-    return draw_labels(np, cv2, page, x, y, side, page_w, page_h, meta, big)
+    return draw_labels(np, cv2, page, x, y, side, page_w, page_h, meta, big,
+                       id_height_mm=id_height_mm, meta_mm=meta_mm)
 
 
 def pages_to_pdf(pages, page_mm):

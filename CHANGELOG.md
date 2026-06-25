@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- CI: bumped `softprops/action-gh-release@v2 → v3` (Node 24 runtime; the `v2`
+  line still targets the now-deprecated Node 20). Release-workflow only.
+
 ## [1.5.0] - 2026-06-25
 
 ### Added

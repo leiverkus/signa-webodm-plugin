@@ -4,6 +4,14 @@ All notable changes to **signa-core** are documented here. The format is based o
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this package adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-06-25
+
+### Fixed
+- Lowered `requires-python` from `>=3.10` to `>=3.9` so the package installs
+  inside WebODM (its webapp/worker run Python 3.9). The code uses no 3.10+
+  syntax; the stricter floor blocked the Mensura plugin's `requirements.txt`
+  install in WebODM ("No matching distribution found for signa-core").
+
 ## [0.2.0] - 2026-06-25
 
 ### Added

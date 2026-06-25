@@ -4,10 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "signa-core"
-version = "0.2.0"
+version = "0.2.1"
 description = "Reusable, GUI-free ArUco marker detection + print-ready marker-sheet rendering for the Signa/Evidentia pipeline (OpenCV)."
 readme = "README.md"
-requires-python = ">=3.10"
+# 3.9 so it installs inside WebODM (its webapp/worker run Python 3.9); the code
+# uses no 3.10+ syntax. Bumped from >=3.10, which blocked the Mensura plugin's
+# requirements install in WebODM.
+requires-python = ">=3.9"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [

@@ -21,14 +21,20 @@ jobs:
 
   python:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # 3.9 is what WebODM's webapp/worker run (signa-core targets >=3.9);
+        # 3.10 is the local/dev floor. Test both so neither can silently drift.
+        python-version: ['3.9', '3.10']
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.10'
+          python-version: ${{ matrix.python-version }}
 
-      - name: Compile-check plugin + script sources
-        run: python -m compileall -q signa scripts
+      - name: Compile-check plugin + script + core sources
+        run: python -m compileall -q signa scripts signa-core/signa_core
 
       - name: Validate manifest.json
         run: python3 -c "import json; m=json.load(open('signa/manifest.json')); assert m['name'] and m['version']; print('manifest ok:', m['name'], m['version'])"
@@ -38,8 +44,8 @@ jobs:
           pip install "numpy>=1.23,<3" "opencv-contrib-python-headless==4.10.0.84" pytest
           pip install -e signa-core   # plugin's params.py/marker_pdf.py import signa_core
 
-      - name: Run unit + real-OpenCV integration tests
-        run: python -m pytest tests/ -q
+      - name: Run unit + real-OpenCV integration tests (plugin + core)
+        run: python -m pytest tests/ signa-core/tests -q
 
   build:
     runs-on: ubuntu-latest

@@ -39,3 +39,16 @@ WebODM runs Signa's GCP detection by serializing a single self-contained
 function into a Celery worker, so the plugin keeps its own inlined copy of the
 detection primitive for that path. `signa-core` is the canonical, importable
 version for all non-worker consumers; the two are kept behaviourally identical.
+
+## Releasing (PyPI)
+
+Published via **PyPI Trusted Publishing** (OIDC) — no API token is stored. See
+[`.github/workflows/publish-signa-core.yml`](../.github/workflows/publish-signa-core.yml)
+and its header for the one-time pypi.org publisher setup. To release:
+
+```bash
+# bump version in pyproject.toml, then:
+git tag signa-core-v0.1.0 && git push origin signa-core-v0.1.0
+```
+
+The workflow runs the tests, builds the sdist + wheel, and publishes them.
